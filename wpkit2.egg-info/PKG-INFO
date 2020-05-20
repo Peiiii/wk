@@ -1,0 +1,18 @@
+Metadata-Version: 2.1
+Name: wpkit2
+Version: 0.0.0.2
+Summary: Devkit of Wang Pei
+Home-page: https://github.com/Peiiii/wk
+Author: Wang Pei
+Author-email: 1535376447@qq.com
+License: UNKNOWN
+Description: wpkit2
+        ---
+        wpkit2 is a package , which contains many useful develop tools.
+        
+Platform: UNKNOWN
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.0
+Description-Content-Type: text/markdown
