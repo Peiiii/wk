@@ -134,7 +134,7 @@ class FakeOS:
     def openObjectfile(self,path):
         path=self._truepath(path)
         return ObjectFile(path)
-    def openSimplelistfile(self,path):
+    def openSimpleListfile(self,path):
         path=self._truepath(path)
         return SimpleListFile(path)
     def openFolder(self,path):

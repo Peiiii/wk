@@ -35,6 +35,9 @@ wk/extra/gen_scripts/__init__.py
 wk/extra/gitspace/__init__.py
 wk/extra/money/__init__.py
 wk/extra/node/__init__.py
+wk/extra/node/components.py
+wk/extra/node/node.py
+wk/extra/node/qt.py
 wk/extra/projects/__init__.py
 wk/fun/__init__.py
 wk/fun/heart.py
