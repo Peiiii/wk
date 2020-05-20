@@ -2,21 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8301804e-b366-40d1-aa5a-98ae1ea527f1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/tmp/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tests/tmp/exp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/wk/basic/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib/wk/basic/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/wk/basic/other_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib/wk/basic/other_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/wk/extra/node/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib/wk/extra/node/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/lib/wk/io/class_store/fs_handles.py" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib/wk/io/class_store/fs_handles.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/wpkit2-0.0.0.2-py3-none-any.whl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/wpkit2-0.0.0.2.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/version.txt" beforeDir="false" afterPath="$PROJECT_DIR$/version.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wk/io/class_store/fs_handles.py" beforeDir="false" afterPath="$PROJECT_DIR$/wk/io/class_store/fs_handles.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wpkit2.egg-info/PKG-INFO" beforeDir="false" afterPath="$PROJECT_DIR$/wpkit2.egg-info/PKG-INFO" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wpkit2.egg-info/SOURCES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/wpkit2.egg-info/SOURCES.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -209,7 +195,7 @@
       <option name="presentableId" value="Default" />
       <updated>1589568108879</updated>
       <workItem from="1589568110236" duration="24257000" />
-      <workItem from="1589941418084" duration="1248000" />
+      <workItem from="1589941418084" duration="1316000" />
     </task>
     <servers />
   </component>
