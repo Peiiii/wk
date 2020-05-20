@@ -2,12 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8301804e-b366-40d1-aa5a-98ae1ea527f1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/wk.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/wk.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/lib/wk/io/class_store/ofiles.py" beforeDir="false" afterPath="$PROJECT_DIR$/build/lib/wk/io/class_store/ofiles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/wpkit2-0.0.0.4-py3-none-any.whl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/dist/wpkit2-0.0.0.4.tar.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/tmp/exp.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/tmp/exp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/version.txt" beforeDir="false" afterPath="$PROJECT_DIR$/version.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wk/io/class_store/ofiles.py" beforeDir="false" afterPath="$PROJECT_DIR$/wk/io/class_store/ofiles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wpkit2.egg-info/PKG-INFO" beforeDir="false" afterPath="$PROJECT_DIR$/wpkit2.egg-info/PKG-INFO" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -35,7 +37,7 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../contests/AIWIN" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -202,7 +204,7 @@
       <updated>1589568108879</updated>
       <workItem from="1589568110236" duration="24257000" />
       <workItem from="1589942462642" duration="861000" />
-      <workItem from="1589950944148" duration="179000" />
+      <workItem from="1589950944148" duration="2877000" />
     </task>
     <servers />
   </component>

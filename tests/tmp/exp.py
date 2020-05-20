@@ -1,3 +1,3 @@
 import wk
 
-wk.Folder.openSimplelistfile()
+wk.Folder.openSimpleListfile()

@@ -30,6 +30,10 @@ class SimpleListFile(ObjectFile):
     def write(self,obj):
         obj=self.split_char.join(obj)
         return write_txt(obj,self.path)
+    def append(self,obj):
+        lis=self.read()
+        lis.append(obj)
+        return self.write(lis)
     def read(self):
         text=read_txt(self.path).strip()
         return text.split(self.split_char)
