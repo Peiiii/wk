@@ -148,3 +148,10 @@ def load_iterables_from_string(text='',template=[list,'\n']):
                     v = load_iterables_from_string(v, next_template)
                 dic[k]=v
             return dic
+def concat_text_files(src_files,dst_file,split_char=''):
+    texts=[]
+    for src in src_files:
+        txt=read_txt(src)
+        texts.append(txt)
+    with open(dst_file,'w',encoding='utf-8') as f:
+        f.write(split_char.join(texts))

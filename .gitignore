@@ -1,3 +1,4 @@
 ./build
 ./wpkit2.egg-info
 .idea
+./tests
