@@ -2,3 +2,5 @@
 ./wpkit2.egg-info
 .idea
 ./tests
+./data
+./dist
