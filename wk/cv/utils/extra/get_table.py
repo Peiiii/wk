@@ -4,11 +4,11 @@ import numpy as np
 from PIL import Image
 # from arsocr.utils.extra.rectify import rectify,detect_angle,rotate
 # from arsocr.utils.allutils import crop_quad,organize_points
-# from wpkit.cv.ocr.utils import crop_quad,organize_points
-# from wpkit.cv.table.rectify import rectify,detect_angle,rotate
-# from wpkit.cv import utils as cvutils
-# from wpkit.cv.utils import ImageSaver
-# from wpkit.pjtools import Timer
+# from wk.cv.ocr.utils import crop_quad,organize_points
+# from wk.cv.table.rectify import rectify,detect_angle,rotate
+# from wk.cv import utils as cvutils
+# from wk.cv.utils import ImageSaver
+# from wk.pjtools import Timer
 
 # imsaver=ImageSaver(save_dir=r'/home/ars/disk/work/超远/chaoyuan-part1-dev/data/results/tmp',remake_dir=True)
 # imsaver.deactive()
@@ -107,10 +107,10 @@ def get_table(img,max_approx_poly_distance=200,exclude_paper_edge_thresh=20,scal
     # save_to_dir(table)
     # return table
 def cv_imread(f):
-    from wpkit.cv.utils import cv2img
+    from wk.cv.utils import cv2img
     return cv2img(Image.open(f))
 def demo():
-    # from wpkit.pjtools import run_timer,Timer
+    # from wk.pjtools import run_timer,Timer
     imsaver.deactive()
     # dir = '/home/ars/disk/chaoyuan/数据整理/ocr测试图片/exp/imgs'
     # dir = r'/home/ars/disk/chaoyuan/数据整理/ocr测试图片/安检报告'

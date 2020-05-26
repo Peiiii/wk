@@ -23,7 +23,7 @@ class Tem:
 
 def gen_service(dst_file="./mysite", service_name='mysite', project_dir='/root/projects/mysite', script_file_name='main.py'):
     import pkg_resources
-    tmp_path = pkg_resources.resource_filename('wpkit', 'data/templates/service.sh')
+    tmp_path = pkg_resources.resource_filename('wk', 'data/templates/service.sh')
     tem = Tem(tmp_path)
     if dst_file:
         r = tem.render_to_file(fp=dst_file, service_name=service_name,

@@ -1,10 +1,7 @@
 from .GitRepo import default_remote_location,GitRepo,is_git_dir
-from wpkit.fsutil import Folder,copy_file,copy_dir,copy_fsitem,remove_fsitem,is_empty_dir
-from wpkit.piu import FileDict
-from wpkit.basic import T,TMetaClass,CONST_TYPE
+from wk import Folder,copy_file,copy_dir,copy_fsitem,remove_fsitem,is_empty_dir
+from wk.basic import T,TMetaClass,CONST_TYPE
 import os,shutil,glob,uuid,random
-from wpkit.ofile import SimpleListFile
-# from .BranchList import RemoteBranchList
 from .utils import generate_hash
 _T=CONST_TYPE
 class CONST(metaclass=TMetaClass):
@@ -39,7 +36,7 @@ class StoreItem(Folder):
     legal_path_chars = [str(i) for i in range(10)]+[chr(i) for i in range(65, 91)]+[chr(i) for i in range(97, 123)]+list('._-')
     def status(self,repo=None):
         repo=repo or self.repo
-        from wpkit.basic import PointDict
+        from wk.basic import PointDict
         info=PointDict(
             current_branch=repo.active_branch(),
             local_branches=repo.branch_list(),
@@ -144,7 +141,7 @@ class StoreItem(Folder):
     #     repo.checkout_branch(CONST.remote_branch_list)
     #     if pull:
     #         self._pull_remote_branch_list(repo)
-    #     lf = self.openSimplelistfile(CONST.remote_branch_list)
+    #     lf = self.openSimpleListfile(CONST.remote_branch_list)
     #     li = lf.read()
     #     repo.checkout_branch(br)
     #     return li
@@ -154,7 +151,7 @@ class StoreItem(Folder):
     #     self._pull_remote_branch_list(hard=True)
     #     repo.checkout_branch(CONST.remote_branch_list)
     #     # repo.pull(self.remote_location,CONST.remote_branch_list)
-    #     lf=self.openSimplelistfile(CONST.remote_branch_list)
+    #     lf=self.openSimpleListfile(CONST.remote_branch_list)
     #     li=lf.read()
     #     # print("original:",li)
     #     li.append(branch)
@@ -456,7 +453,7 @@ class RemoteBranchList(StoreFolder):
         try:
             self._pull_remote()
             if self.is_empty() or not self.exists(_BRANCH_LIST):
-                self.openSimplelistfile(_BRANCH_LIST)
+                self.openSimpleListfile(_BRANCH_LIST)
                 self._push_self()
         except:
             import logging
@@ -470,7 +467,7 @@ class RemoteBranchList(StoreFolder):
     def branch_add_if_not_exists(self,branch):
         return self.branch_add(branch)
     def branch_add(self,branch):
-        lf=self.openSimplelistfile(_BRANCH_LIST)
+        lf=self.openSimpleListfile(_BRANCH_LIST)
         lis=lf.read()
         if branch not in lis:
             self._try_pull_remote()
@@ -487,7 +484,7 @@ class RemoteBranchList(StoreFolder):
             else:
                 return False
     def _read_remote_branch_list(self):
-        return self.openSimplelistfile(_BRANCH_LIST).read()
+        return self.openSimpleListfile(_BRANCH_LIST).read()
 
 
 

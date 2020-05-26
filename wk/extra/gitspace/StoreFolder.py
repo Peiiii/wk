@@ -3,11 +3,11 @@ Deprecated.
 '''
 
 from .gitspace import GitSpace,open_default,default_remote_location,GitRepo,is_git_dir,FakeOS
-from wpkit.fsutil import Folder,copy_file,copy_dir,copy_fsitem,remove_fsitem,is_empty_dir
-from wpkit.piu import FileDict
-from wpkit.basic import T,TMetaClass,CONST_TYPE
+from wk import Folder,copy_file,copy_dir,copy_fsitem,remove_fsitem,is_empty_dir
+from wk import FileDict
+from wk import T,TMetaClass,CONST_TYPE
 import os,shutil,glob
-from wpkit.ofile import SimpleListFile
+from wk import SimpleListFile
 _T=CONST_TYPE
 class CONST(metaclass=TMetaClass):
     remote_branch_list=_T()
@@ -74,7 +74,7 @@ class StoreItem(Folder):
     legal_path_chars = [str(i) for i in range(10)]+[chr(i) for i in range(65, 91)]+[chr(i) for i in range(97, 123)]+list('._-')
     def status(self,repo=None):
         repo=repo or self.repo
-        from wpkit.basic import PointDict
+        from wk import PointDict
         info=PointDict(
             current_branch=repo.active_branch(),
             local_branches=repo.branch_list(),
@@ -151,7 +151,7 @@ class StoreItem(Folder):
         repo.checkout_branch(CONST.remote_branch_list)
         if pull:
             self._pull_remote_branch_list(repo)
-        lf = self.openSimplelistfile(CONST.remote_branch_list)
+        lf = self.openSimpleListfile(CONST.remote_branch_list)
         li = lf.read()
         repo.checkout_branch(br)
         return li
@@ -161,7 +161,7 @@ class StoreItem(Folder):
         self._pull_remote_branch_list(hard=True)
         repo.checkout_branch(CONST.remote_branch_list)
         # repo.pull(self.remote_location,CONST.remote_branch_list)
-        lf=self.openSimplelistfile(CONST.remote_branch_list)
+        lf=self.openSimpleListfile(CONST.remote_branch_list)
         li=lf.read()
         # print("original:",li)
         li.append(branch)

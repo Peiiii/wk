@@ -274,10 +274,10 @@ class DirPath(str):
     def standard(self):
         return self.__class__(standard_path(self))
     def tranverse_files(self,func):
-        from wpkit.fsutil import tranverse_files
+        from wk import tranverse_files
         tranverse_files(self,func)
     def tranverse_dirs(self,func):
-        from wpkit.fsutil import tranverse_dirs
+        from wk import tranverse_dirs
         tranverse_dirs(self,func)
     def deepglob(self,s,res=[]):
         res+=self.glob(s)

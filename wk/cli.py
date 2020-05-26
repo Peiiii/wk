@@ -44,7 +44,7 @@ def main():
             else:
                 print("Service %s is not valid."%(service))
     fire.Fire(Cli)
-    # Cli.uptee('wpkit2','../dist/wpkit2-0.0.1.3-py3-none-any.whl')
+    # Cli.uptee('wpkit2','../dist/wpkit2-0.0.1.8-py3-none-any.whl')
 
 if __name__ == '__main__':
     main()

@@ -35,7 +35,7 @@ class Predictor:
         img=Image.open(fp)
         return self.predict(img)
     def test_dir(self,dir,out_dir,verbose=True,font_path=None,font_size=64):
-        from wpkit.cv.utils import mark_img,set_font_path
+        from wk.cv.utils import mark_img,set_font_path
         if not font_path:
             if os.path.exists('msyh.ttf'):
                 font_path='msyh.ttf'

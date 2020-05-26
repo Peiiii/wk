@@ -67,7 +67,7 @@ def rotate(image, angle):
     M[1, 2] += (nH / 2) - cy
     return cv2.warpAffine(image, M, (nW, nH))
 def rectify(img):
-    # from wpkit.cv.transform.opencv import rotate
+    # from wk.cv.transform.opencv import rotate
     angle=detect_angle(img)
     # print(angle)
     if abs(angle)>1:

@@ -142,11 +142,11 @@ class FakeOS:
         return open(file, mode)
     def openDB(self,path):
         path=self._truepath(path)
-        from wpkit.piu import BackupDB
+        from wk import BackupDB
         return BackupDB(path)
     def openFiledict(self,path):
         path=self._truepath(path)
-        from wpkit.piu import FileDict
+        from wk import FileDict
         return FileDict(path)
     def openObjectfile(self,path):
         path=self._truepath(path)
@@ -156,7 +156,7 @@ class FakeOS:
         return SimpleListFile(path)
     def openFolder(self,path):
         path=self._truepath(path)
-        from wpkit.fsutil import Folder
+        from wk import Folder
         return Folder(path)
     def dir(self,name):
         path=self._truepath(name)

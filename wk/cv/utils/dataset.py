@@ -1,5 +1,5 @@
 import os, shutil, glob, random
-# from wpkit.fsutil import copy_files_to
+# from wk.fsutil import copy_files_to
 
 def newdir(out_dir):
     if os.path.exists(out_dir): shutil.rmtree(out_dir)

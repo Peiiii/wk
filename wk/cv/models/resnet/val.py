@@ -13,7 +13,7 @@ import copy
 # print("PyTorch Version: ",torch.__version__)
 # print("Torchvision Version: ",torchvision.__version__)
 from PIL import Image
-from wpkit.utils import  remake
+from wk.utils import  remake
 # data_dir = "/home/ars/disk/chaoyuan/dataset/汽车分类/颜色/car_color_dataset/val"
 data_dir = "/home/ars/sda5/data/chaoyuan/datasets/classify_datasets/申请表字段有无签名/val"
 # data_dir = "/home/ars/sda5/data/chaoyuan/datasets/classify_datasets/公章/val"

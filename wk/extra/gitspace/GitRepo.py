@@ -1,7 +1,5 @@
 from dulwich import porcelain as git
 from dulwich.repo import Repo
-from wpkit.fsutil.dir_dict import FakeOS
-from wpkit.basic import T
 import os, shutil, glob
 
 default_remote_location= 'https://OpenGitspace:Gitspace@123456@gitee.com/OpenGitspace/meta'

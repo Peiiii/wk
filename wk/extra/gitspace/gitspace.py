@@ -4,8 +4,8 @@ Deprecated
 
 from dulwich import porcelain as git
 from dulwich.repo import Repo
-from wpkit.fsutil.dir_dict import FakeOS
-from wpkit.basic import T
+from wk import FakeOS
+from wk import T
 import os, shutil, glob
 
 default_remote_location= 'https://OpenGitspace:Gitspace@123456@gitee.com/OpenGitspace/meta'
@@ -330,7 +330,7 @@ class SimpleStore:
         # input()
         return cfg.store_keys
     def status(self):
-        from wpkit.basic import PointDict
+        from wk import PointDict
         info=PointDict(
             current_branch=self.space.active_branch(),
             branches=self.space.branch_list(),
@@ -403,7 +403,7 @@ class SimpleStore:
     def _copy_to_cache_dir(self,paths):
         self._copy(paths,self.cache_dir)
     def _copy(self,paths,dst,overwrite=False):
-        from wpkit.fsutil import copy_dir,copy_file
+        from wk import copy_dir,copy_file
         if isinstance(paths,str):
             paths=[paths]
         for path in paths:

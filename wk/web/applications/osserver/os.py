@@ -1,4 +1,4 @@
-from wpkit.fsutil import FakeOS
+from wk import FakeOS
 from wpkit.web.apputils import MyBlueprint,parse_json_and_form,\
     StatusError,StatusSuccess,Status,jsonify,request,\
     get_env,Pages,send_file,get_page_template

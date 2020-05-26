@@ -2,12 +2,12 @@
 # chkconfig: 2345 85 15
 # description: start service at boot time
 #. /etc/init.d/functions
-SERVICE_NAME="mysite"
+SERVICE_NAME="{{service_name}}"
 RETVAL=0
 PID=-1
 PIDFILE=/var/run/${SERVICE_NAME}.PID
-PROJECT_PATH="D:\work\wk\mysite"
-SCRIPT_FILE_NAME='D:\work\wk\mysite\main.py'
+PROJECT_PATH="{{project_dir}}"
+SCRIPT_FILE_NAME='{{script_file_name}}'
 LOG_PATH=${PROJECT_PATH}/service.log
 start() {
   # 首先检查PID文件是否已存在

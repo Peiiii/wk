@@ -1,7 +1,5 @@
 README.md
 setup.py
-mysite/__init__.py
-mysite/main.py
 wk/__init__.py
 wk/cli.py
 wk/pkg_info.py
@@ -47,6 +45,7 @@ wk/data/static/js/popper.min.js
 wk/data/static/js/store.everything.min.js
 wk/data/static/js/vue.js
 wk/data/templates/README.md
+wk/data/templates/service.sh
 wk/debug/__init__.py
 wk/debug/logger.py
 wk/debug/timer.py
@@ -57,7 +56,6 @@ wk/extra/gitspace/BranchDict.py
 wk/extra/gitspace/BranchList.py
 wk/extra/gitspace/GitRepo.py
 wk/extra/gitspace/ShadowStore.py
-wk/extra/gitspace/Store.py
 wk/extra/gitspace/StoreFolder.py
 wk/extra/gitspace/StoreItem.py
 wk/extra/gitspace/StoreItem_old.py

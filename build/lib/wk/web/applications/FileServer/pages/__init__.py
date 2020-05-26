@@ -1,1 +1,0 @@
-from .page1 import *

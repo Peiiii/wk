@@ -1,6 +1,6 @@
-from wpkit.gitspace.StoreFolder import StoreFolder,StoreFile
-from wpkit.basic import get_time_formated
-from wpkit.utils import SimpleListFile
+from wk.extra.gitspace.StoreFolder import StoreFolder,StoreFile
+from wk import get_time_formated
+from wk import SimpleListFile
 
 
 def main():
