@@ -2,8 +2,10 @@ import os,shutil,glob,json
 from .. ioutils import json_dump,json_load,read_txt,write_txt,read_config,write_config
 
 class ObjectFile:
-    def __init__(self,path,default=None):
+    def __init__(self,path,default=None,recreate=False):
         self.path=path
+        if recreate and os.path.exists(path):
+            os.remove(path)
         if not os.path.exists(path):
             open(path,'w').close()
         if self.is_empty():

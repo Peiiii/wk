@@ -51,6 +51,7 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'wk = wk.cli:main',
+            'wkb = wk.cli:main_bold'
         ]
     },
     package_data={'wpkit':[

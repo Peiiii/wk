@@ -360,8 +360,16 @@ def tree4():
     tree(100, t)
     myWin.exitonclick()
 
-def rose1():
+def rose1(love=None):
+    import turtle
     from turtle import pensize,showturtle,penup,pendown,left,fd,right,fillcolor,begin_fill,circle,setheading,end_fill,done
+
+    def move_pen_position(x, y):
+        turtle.hideturtle()  # 隐藏画笔（先）
+        turtle.up()  # 提笔
+        turtle.goto(x, y)  # 移动画笔到指定起始坐标（窗口中心为0,0）
+        turtle.down()  # 下笔
+        turtle.showturtle()  # 显示画笔
     # 初始化一下，摆好姿势...
     pensize(2)
     showturtle()
@@ -443,6 +451,12 @@ def rose1():
     fd(60)
     left(90)
     circle(200, -60)
+    if love:
+        move_pen_position(0, 0)  # 表白语位置
+        turtle.hideturtle()  # 隐藏画笔
+        turtle.color('#CD5C5C', 'pink')  # 字体颜色
+        # font:设定字体、尺寸（电脑下存在的字体都可设置）  align:中心对齐
+        turtle.write(love, font=('Arial', 30, 'bold'), align="center")
     done()
 def peppa():
     import turtle as t

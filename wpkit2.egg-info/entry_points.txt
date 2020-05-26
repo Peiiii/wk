@@ -1,3 +1,4 @@
 [console_scripts]
 wk = wk.cli:main
+wkb = wk.cli:main_bold
 

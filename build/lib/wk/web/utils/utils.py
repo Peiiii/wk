@@ -75,6 +75,10 @@ def parse_from(*refers):
             params = {}
             for ag in fargs:
                 params[ag] = dic.get(ag, None)
+                if params[ag] is None:
+                    for k,v in dic.items():
+                        if k.replace('-','_')==ag:
+                            params[ag]=v
             # print("args:",fargs)
             # print("params:",params)
             params.update(kwargs)
@@ -84,11 +88,13 @@ def parse_from(*refers):
 def get_form():return request.form
 def get_json():return request.json
 def get_cookies():return request.cookies
+def get_url_args():return request.args
 # parse_json is a decorator
 parse_json_and_form=parse_from(get_json,get_form)
 parse_json=parse_from(get_json)
 parse_form=parse_from(get_form)
 parse_cookies=parse_from(get_cookies)
+parse_args=parse_from(get_url_args)
 parse_all=parse_from(get_cookies,get_form,get_json)
 
 

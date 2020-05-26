@@ -1,6 +1,6 @@
-import os,shutil,glob,json,pickle
+import os,shutil,glob,json,pickle,re,time
 from wk.basic import get_relative_path,standard_path,split_path,PowerDirPath,DirPath
-from ..fsutils import copy_dir
+from ..fsutils import copy_dir,copy_file
 from .ofiles import ObjectFile,SimpleListFile,SimpleConfigFile,NumberFile,DictFile
 class DirDict(object):
     def __init__(self,name=None,realpath=None,*args,**kwargs):
@@ -98,6 +98,7 @@ class FakeOS:
         if  path and os.path.exists(path):
             path=os.path.abspath(path)
         self.path=standard_path(path) if path else path
+        self.cache={}
     def _relpath(self,root,path):
         return get_relative_path(root,path)
     def _standard_path(self,*args,**kwargs):
@@ -110,6 +111,22 @@ class FakeOS:
         if not self.path:
             return standard_path(path)
         return self.path+'/'+standard_path(path)
+    def search(self,keywords,match_all=True):
+        if not 'files' in self.cache.keys():
+            self.cache['files']=self.glob('./**/*.*',recursive=True)
+        fs=self.cache['files']
+        if match_all:
+            for word in keywords:
+                fs=list(filter(lambda f:re.findall(word,f),fs))
+            return fs
+        else:
+            def match(text,ptns):
+                for ptn in ptns:
+                    if re.findall(ptn,text):return True
+                return False
+            fs=list(filter(lambda f:match(f,keywords),fs))
+            return fs
+
     def glob(self,pathname='./',recursive=False):
         pathname=self._truepath(pathname)
         fs=glob.glob(pathname=pathname,recursive=recursive)
