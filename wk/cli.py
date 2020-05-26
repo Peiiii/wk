@@ -20,15 +20,31 @@ def main_bold():
 def main():
     import fire
     class Cli:
-        def hi(self):
+        @staticmethod
+        def hi():
             run_default()
-        def deploy(self,service,*args,**kwargs):
+
+        @staticmethod
+        def downtee( key, path=None, overwrite=False):
+            from wk.extra.gitspace import Store
+            store = Store()
+            store.get(key, path=path, overwrite=overwrite)
+
+        @staticmethod
+        def uptee( key, path, recursive=False):
+            from wk.extra.gitspace import Store
+            store = Store()
+            store.set(key, path, recursive)
+
+        @staticmethod
+        def deploy(service,*args,**kwargs):
             if service=='fsapp':
                 from wk.applications import fsapp
                 fsapp.setup_default(*args,**kwargs)
             else:
                 print("Service %s is not valid."%(service))
     fire.Fire(Cli)
+    # Cli.uptee('wpkit2','../dist/wpkit2-0.0.1.3-py3-none-any.whl')
 
 if __name__ == '__main__':
     main()

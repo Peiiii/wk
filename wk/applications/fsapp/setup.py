@@ -7,6 +7,6 @@ def setup_default(out_dir='./mysite',add_as_service=True):
         f2=out_dir+'/'+os.path.basename(f)
         shutil.copy(f,f2)
     if not add_as_service:return  True
-    from wpkit.linux.tools import add_py_to_service
+    from wk.extra.linux.tools import add_py_to_service
     add_py_to_service(service_name="mysite",project_dir=out_dir,script_file_path=out_dir+'/main.py')
 

@@ -54,7 +54,7 @@ setuptools.setup(
             'wkb = wk.cli:main_bold'
         ]
     },
-    package_data={'wpkit':[
+    package_data={'wk':[
         'data/*','data/*/*','data/*/*/*','data/*/*/*/*','data/*/*/*/*/*'
     ]},
     classifiers=[
