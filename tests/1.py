@@ -1,6 +1,4 @@
-from  wk.web.applications.demo import DemoApp
+from flask import Flask
 
-app=DemoApp(__name__)
-
-app.run()
+app=Flask(__name__)
 

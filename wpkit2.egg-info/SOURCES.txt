@@ -31,6 +31,8 @@ wk/cv/utils/augmentations/trans.py
 wk/cv/utils/extra/__init__.py
 wk/cv/utils/extra/get_table.py
 wk/cv/utils/extra/rectify.py
+wk/data/__init__.py
+wk/data/__pycache__/__init__.cpython-37.pyc
 wk/data/documents/README.md
 wk/data/static/README.md
 wk/data/static/css/bootstrap.min.css
@@ -45,6 +47,7 @@ wk/data/static/js/popper.min.js
 wk/data/static/js/store.everything.min.js
 wk/data/static/js/vue.js
 wk/data/templates/README.md
+wk/data/templates/files.html
 wk/data/templates/service.sh
 wk/debug/__init__.py
 wk/debug/logger.py

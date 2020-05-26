@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <link href="/pkg-resource/css/bootstrap.min.css" rel="stylesheet">
+    <title>Files</title>
+    <!--      在这里放脚本-->
+
+
+    <!--      结束-->
+</head>
+<body>
+<!--    主体-->
+    <table class="table table-bordered table-striped">
+    <thead>Files</thead>
+    <tbody>
+    {% for file in files %}
+        <tr><td><a href="{{ file[0]}}">{{ file[1] }}</a></td></tr>
+    {% endfor %}
+    </tbody>
+
+</table>
+
+<!--结束-->
+
+<script src="/pkg-resource/js/jquery-3.4.1.js"></script>
+<script src="/pkg-resource/js/popper.min.js"></script>
+<script src="/pkg-resource/js/bootstrap.min.js"></script>
+
+<!--      在这里放脚本-->
+
+
+<!--      结束-->
+
+</body>
+</html>
