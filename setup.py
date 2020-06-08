@@ -55,7 +55,7 @@ setuptools.setup(
         ]
     },
     package_data={'wk':[
-        'data/*','data/*/*','data/*/*/*','data/*/*/*/*','data/*/*/*/*/*'
+        'data/*','data/*/*','data/*/*/*','data/*/*/*/*','data/*/*/*/*/*','data/*/*/*/*/*/*'
     ]},
     classifiers=[
         "Programming Language :: Python :: 3",

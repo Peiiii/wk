@@ -1,0 +1,52 @@
+{% extends "base.tem" %}
+
+{% block body %}
+
+
+
+    <div class="mx-auto my-5" style="max-width: 30em;">
+
+
+        <form action="{{ action }}" method="{{ method or 'get' }}">
+<!--            <div class="form-group">-->
+<!--                <label for="exampleInputEmail1">用户名</label>-->
+<!--                <input type="text" id="username-input" name="username" class="form-control"  aria-describedby="emailHelp"-->
+<!--                       placeholder="Enter username">-->
+<!--            </div>-->
+            <div class="form-group">
+                <label for="exampleInputEmail1">电子邮箱</label>
+                <input type="email" id="email-input" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                       placeholder="Enter email">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">密码</label>
+                <input type="password" name="password" class="form-control" id="pw1" placeholder="输入您的密码">
+            </div>
+            <button type="submit" id="btn-submit" class="btn btn-primary mt-4 float-right">提交</button>
+        </form>
+    <script>
+        $(document).ready(()=>{
+            $('#pw2').on('input propertychange',()=>{
+                var pw1=$('#pw1');
+                if(pw1.val()!=$('#pw2').val()){
+                    $('#pw-hint').text('两次输入的密码不一致!');
+                    $('#pw-hint').removeClass('text-success').addClass('text-warning');
+                }else {
+                    $('#pw-hint').text('两次输入密码一致');
+                    $('#pw-hint').removeClass('text-warning').addClass('text-success');
+                }
+            });
+            $('#btn-submit').click((e)=>{
+                if(!$('#username-input').val().trim()){
+                    $.jGrowl("请输入邮箱");
+                    e.preventDefault();
+                }
+                if(!$('#pw1').val().trim()){
+                    $.jGrowl("请输入密码");
+                    e.preventDefault();
+                }
+            })
+        })
+    </script>
+    </div>
+{% endblock %}

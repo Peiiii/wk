@@ -10,6 +10,9 @@ class Urls:
         popper = 'https://cdn.staticfile.org/popper.js/2.4.0/umd/popper.min.js'
         marked = 'https://cdn.staticfile.org/marked/1.1.0/marked.min.js'
         jwerty = 'https://cdn.staticfile.org/jwerty/0.3.2/jwerty.min.js'
+        font_awesome = 'https://cdn.staticfile.org/font-awesome/5.13.0/js/all.min.js'
+        jgrowl = 'https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.js'
+        alertify = 'https://cdn.staticfile.org/AlertifyJS/1.13.1/alertify.min.js'
 
         class highlightjs:
             highlightjs = 'https://cdn.staticfile.org/highlight.js/10.0.3/highlight.min.js'
@@ -37,6 +40,9 @@ class Urls:
 
     class css:
         bootstrap = 'https://cdn.staticfile.org/twitter-bootstrap/4.5.0/css/bootstrap.min.css'
+        font_awesome = 'https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css'
+        jgrowl = 'https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.css'
+        alertify = 'https://cdn.staticfile.org/AlertifyJS/1.13.1/css/alertify.min.css'
 
         class highlightjs:
             default = 'https://cdn.staticfile.org/highlight.js/10.0.3/styles/default.min.css'
@@ -59,6 +65,12 @@ class QStyleLink(Link): _attrs = dict(rel="stylesheet", type="text/css")
 class QLinks:
     class bootstrap(QStyleLink): _attrs = dict(href=Urls.css.bootstrap)
 
+    class font_awesome(QStyleLink): _attrs = dict(href=Urls.css.font_awesome)
+
+    class jgrowl(QStyleLink): _attrs = dict(href=Urls.css.jgrowl)
+
+    class alertify(QStyleLink): _attrs = dict(href=Urls.css.alertify)
+
 
 class QScripts:
     class jquery(QUrlScript): _attrs = dict(src=Urls.js.jquery)
@@ -66,6 +78,14 @@ class QScripts:
     class popper(QUrlScript): _attrs = dict(src=Urls.js.popper)
 
     class bootstrap(QUrlScript): _attrs = dict(src=Urls.js.bootstrap)
+
+    class jwerty(QUrlScript): _attrs = dict(src=Urls.js.jwerty)
+
+    class font_awesome(QUrlScript): _attrs = dict(src=Urls.js.font_awesome)
+
+    class jgrowl(QUrlScript): _attrs = dict(src=Urls.js.jgrowl)
+
+    class alertify(QUrlScript): _attrs = dict(src=Urls.js.alertify)
 
 
 class QWindow(Div):

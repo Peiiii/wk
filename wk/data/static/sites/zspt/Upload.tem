@@ -1,0 +1,197 @@
+
+<script>
+    function submit_as_form(data = {}) {
+        var form = $('<form></form>');
+        $('body').append(form[0]);
+        form.css('display', 'none');
+        form.attr('action', data.action);
+        form.attr('method', data.method);
+        for (var key in data.data) {
+            var input = $('<input>');
+            input.attr('name', key);
+            input.attr('type', 'text');
+            input.val(data.data[key]);
+            form.append(input);
+        }
+        form.submit();
+    }
+
+    function notify(message) {
+        $.jGrowl(message, {position: 'center'});
+    }
+
+    function check_status(data) {
+        if (data.success) {
+            if (data.message) {
+                notify(data.message);
+            }
+        } else {
+            if (data.message) {
+                notify(data.message);
+            }
+        }
+    }
+
+    function perform_action(data) {
+        var params = data.params;
+        switch (data.action) {
+            case "redirect":
+                document.location.href = params.location;
+                break;
+            default:
+                break;
+        }
+    }
+
+    function post_json(url,data, func = null) {
+        console.log(data);
+
+        $.post({
+            url: url,
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: res => {
+                console.log(res);
+                check_status(res);
+                // perform_action(res);
+                if (func) {
+                    func(res);
+                }
+            }
+        });
+
+    }
+</script>
+<div style="background-color: #E0E0E0;height: 100%;" class="" id="root">
+    {{navigator}}
+    <div class="mx-auto pt-5" style="max-width: 800px;">
+        <div id="fields-input">
+            <div class="input-group flex-nowrap">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-secondary" style="color: white;width: 4em;"
+                          id="addon-wrapping">标题</span>
+                </div>
+                <input type="text" id="title-input" name="title" class="form-control" placeholder="">
+            </div>
+            <div class="input-group flex-nowrap">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-secondary" style="color: white;width: 4em;">标签</span>
+                </div>
+                <input type="text" id="tags-input" name="tags" class="tagify form-control" placeholder="">
+            </div>
+            <div class="input-group flex-nowrap">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-secondary" style="color: white;width: 4em;">摘要</span>
+                </div>
+                <input type="text" id="digest-input" name="digest" class="form-control" placeholder="">
+            </div>
+            <div class="input-group flex-nowrap">
+                <div class="input-group-prepend">
+                    <span class="input-group-text bg-secondary" style="color: white;width: 4em;">封面</span>
+                </div>
+                <input type="text" id="picture-input" name="picture" class="form-control" placeholder="封面图片的链接,如未上传可先上传">
+            </div>
+        </div>
+        <div id="editor" style="border-radius: 0"></div>
+    </div>
+
+
+    <link href="https://cdn.staticfile.org/froala-editor/3.1.1/css/froala_editor.pkgd.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="https://cdn.staticfile.org/froala-editor/3.1.1/css/themes/dark.min.css" rel="stylesheet"
+          type="text/css"/>
+
+    <script type="text/javascript"
+            src="https://cdn.staticfile.org/froala-editor/3.1.1/js/froala_editor.pkgd.min.js"></script>
+    <script type="text/javascript" src="https://cdn.staticfile.org/froala-editor/3.1.1/js/languages/zh_cn.js"></script>
+
+
+    <script>
+        var editor = new FroalaEditor('#editor', {
+            language: 'zh_cn',
+            height: 300,
+            widthMax: 800,
+            theme: 'dark',
+            zIndex: 2003,
+            imageUploadURL: '/upload',
+            imageUploadParam: 'image',
+            fileUploadURL: '/upload',
+            toolbarButtons: {
+                'moreText': {
+                    'buttons': ['bold', 'italic', 'underline', 'strikeThrough', 'subscript', 'superscript', 'fontFamily', 'fontSize', 'textColor', 'backgroundColor', 'inlineClass', 'inlineStyle', 'clearFormatting']
+                },
+                'moreParagraph': {
+                    'buttons': ['alignLeft', 'alignCenter', 'formatOLSimple', 'alignRight', 'alignJustify', 'formatOL', 'formatUL', 'paragraphFormat', 'paragraphStyle', 'lineHeight', 'outdent', 'indent', 'quote']
+                },
+                'moreRich': {
+                    'buttons': ['insertLink', 'insertImage', 'insertVideo', 'insertTable', 'emoticons', 'fontAwesome', 'specialCharacters', 'embedly', 'insertFile', 'insertHR']
+                },
+                'moreMisc': {
+                    'buttons': ['undo', 'redo', 'fullscreen', 'print', 'getPDF', 'spellChecker', 'selectAll', 'html', 'help']
+                }
+            },
+            // Change buttons for XS screen.
+            toolbarButtonsXS: [['undo', 'redo'], ['bold', 'italic', 'underline']]
+        });
+        jwerty.key('ctrl+S', (e) => {
+            e.preventDefault();
+            var html = editor.html.get();
+            var tmp = $('#tags-input').val();
+            var tags = [];
+            if (tmp) {
+                tmp = JSON.parse(tmp);
+                tmp.forEach((dic) => {
+                    tags.push(dic['value'])
+                });
+            }
+            var img =$('.fr-view').find('img');
+            if (img.length) {
+                picture = img.attr('src');
+            } else picture = null;
+            var data = {
+                object: {
+                    html: html,
+                    text: $(".fr-view").text(),
+                    title: $('#title-input').val(),
+                    tags: tags,
+                    digest: $('#digest-input').val(),
+                    picture:$('#picture-input').val().trim()||picture,
+                }
+            };
+            post_json("{{ context.URL.article.new }}",data);
+            console.log('data:', data);
+        })
+    </script>
+
+
+    <!--old -->
+
+    <div class=" mx-auto mt-5 h-50" id="form2" style="max-width:800px;display: none">
+        <input type="text" class=" form-control title-input" placeholder="Title">
+        <input type="text" id="tags-input-2" class=" tags-input tagify form-control" placeholder="label">
+        <div contenteditable="true" id="content-to-post" class="content-input form-control h-100 overflow-auto"></div>
+        <button class="btn btn-primary float-right"
+                onclick="submit_object('#form2')"
+                type="submit">Submit
+        </button>
+    </div>
+
+</div>
+
+<!--Tagify-->
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css"/>
+<script>
+    $(document).ready(() => {
+        var inputs = $('.tagify');
+        var settings = {
+            dropdown: {
+                enabled: 0
+            },
+            whitelist: [1111, 222, 333, 444]
+        };
+        var tagify = new Tagify(inputs[0], settings);
+    })
+</script>
+

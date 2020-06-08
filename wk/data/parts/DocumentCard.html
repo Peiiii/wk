@@ -1,0 +1,15 @@
+
+
+<div class="card mx-auto my-5" style="max-width: 30em;" >
+  <div class="card-header">
+    {{header or "Header Here"}}
+    <button  class="btn btn-primary float-right"><a href="{{link or '#'}}" style="color: white">{{link_text or 'Go'}}</a></button>
+  </div>
+
+  <div class="card-body overflow-auto" >
+
+    <h5 class="card-title ">{{title or "Title Here"}}</h5>
+    <div class="card-text" contenteditable="false" style="max-height: 10em;">{{content or 'Content Here.'}}</div>
+  </div>
+
+</div>

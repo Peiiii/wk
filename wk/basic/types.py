@@ -507,6 +507,7 @@ def to_datetime_str(t):
     import time
     t=time.gmtime(t)
     return time.strftime('%Y-%m-%d %H:%M:%S',t)
+
 class FileDirDict(PointDict):
     __type_file__='<type:file>'
     __type_dir__='<type:dir>'
@@ -685,11 +686,11 @@ class DirTree(FileDirDict):
         return self.pprint2()
 
 class Status(PointDict):
-    def __init__(self,success=True,msg="success",code=0,data=None,*args,**kwargs):
-        super().__init__(success=success,msg=msg,code=code,data=data,*args,**kwargs)
+    def __init__(self,success=True,message="success",code=0,data=None,*args,**kwargs):
+        super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)
 class StatusSuccess(Status):
-    def __init__(self,success=True,msg="success",code=0,data=None,*args,**kwargs):
-        super().__init__(success=success,msg=msg,code=code,data=data,*args,**kwargs)
+    def __init__(self,success=True,message="success",code=0,data=None,*args,**kwargs):
+        super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)
 class StatusError(Status):
-    def __init__(self,success=False,msg="failure",code=-1,data=None,*args,**kwargs):
-        super().__init__(success=success,msg=msg,code=code,data=data,*args,**kwargs)
+    def __init__(self,success=False,message="failure",code=-1,data=None,*args,**kwargs):
+        super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)

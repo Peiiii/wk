@@ -186,6 +186,7 @@ def iter_boxes(img,boxes,do):
         res=do(im)
         reses.append(res)
     return reses
+
 def crop(img,bbox):
     return img.crop(bbox)
 def crop_by_ratio(img,rbox):
@@ -257,3 +258,4 @@ class ImageSaver:
             cv2.imencode('.jpg', img)[1].tofile(name)
         self.file_index+=1
         return name
+

@@ -74,10 +74,41 @@ class Node(metaclass=NodeMetaClass):
                                                    tag=self.tag)
             else:
                 return '<{tag_and_attrs}></{tag}>'.format(tag_and_attrs=tag_and_attrs_string, tag=self.tag)
+    def to_structure(self,indent=0,indent_step=2):
+        tag_and_attrs_string = ' '.join([self.tag] + ['%s="%s"' % (name, value) for name, value in self.attrs.items()])
+        if self.self_closing:
+            return '<{tag_and_attrs}>'.format(indent=' ' * indent, tag_and_attrs=tag_and_attrs_string)
+        else:
+            if len(self.children) == 1:
+                "Handle such case that the child is text or Var with type of text"
+                child = self.children[0]
+                if isinstance(child, (str,)):
+                    children_string = str(child)
+                    return '<{tag_and_attrs}>{children_string}</{tag}>'.format(tag_and_attrs=tag_and_attrs_string,
+                                                                               children_string=children_string,
+                                                                               tag=self.tag)
+                elif isinstance(child, Var) and child.attrs['type'] == 'text':
+                    children_string = child.to_structure(indent=indent, indent_step=indent_step)
+                    return '<{tag_and_attrs}>{children_string}</{tag}>'.format(tag_and_attrs=tag_and_attrs_string,
+                                                                               children_string=children_string,
+                                                                               tag=self.tag)
 
+            children_string = '\n{indent}'.format(indent=' ' * (indent + indent_step)).join([child.to_structure(
+                indent=indent + indent_step, indent_step=indent_step) if isinstance(child, (Node,)) else ' ' * (
+                    indent + indent_step) + str(child) + '\n' for child in self.children])
+            if children_string:
+                return '<{tag_and_attrs}>\n{next_indent}' \
+                       '{children_string}' \
+                       '\n{indent}</{tag}>'.format(next_indent=' ' * (indent + indent_step), indent=' ' * indent,
+                                                   tag_and_attrs=tag_and_attrs_string, children_string=children_string,
+                                                   tag=self.tag)
+            else:
+                return '<{tag_and_attrs}></{tag}>'.format(tag_and_attrs=tag_and_attrs_string, tag=self.tag)
     def __str__(self):
         return self.to_string()
-
+        # return self.to_structure()
+    def __repr__(self):
+        return self.to_structure()
     def __len__(self):
         return len(self.children)
 
@@ -85,6 +116,9 @@ class Node(metaclass=NodeMetaClass):
         if not isinstance(children, (list,)):
             assert isinstance(children, (Node, str, Var))
             children = [children]
+        # for i,child in enumerate(children):
+        #     if isinstance(child ,str):
+        #         children[i]=Text()(child)
         self.children = children
         return self
 
@@ -97,12 +131,18 @@ class Node(metaclass=NodeMetaClass):
         if not len(self.children):
             return self
         index=0
+        # print(self.children)
+        # print("compiling:",type(self))
+        # print([type(child) for child in self.children])
         for i in range(len(self.children)):
             child=self.children[index]
+            # print("type:",type(child))
             if isinstance(child, str):
+                index+=1
                 continue
             if isinstance(child, Var):
                 name = child.attrs['name']
+                # print("var:",name)
                 if name in kwargs.keys():
                     self.children.pop(index)
                     new_nodes=kwargs[name]
@@ -127,6 +167,16 @@ class Node(metaclass=NodeMetaClass):
         tem = Environment().from_string(self.to_string())
         return tem.render(**render_kwargs)
 
+class Text(Node):
+    tag = 'text'
+    def to_string(self, indent=0, indent_step=2):
+        return self.children[0]
+    def __call__(self, children: list = []):
+        if not isinstance(children, (list,)):
+            assert isinstance(children, ( str, ))
+            children = [children]
+        self.children = children
+        return self
 
 class Var(Node):
     tag = 'var'

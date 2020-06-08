@@ -1,0 +1,5 @@
+<div class="user-page mx-auto" style="max-width: 40em;">
+    <h1 class="username">{{ context.user['username'] }}</h1>
+<a href="{{ context.user['url'] }}"><img class="rounded-circle" src="{{ context.user['avatar'] }}" style="width: 128px;height: 128px;"></a>
+
+</div>

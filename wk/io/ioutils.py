@@ -23,6 +23,7 @@ def write_txt(txt,path,encoding='utf-8'):
     with open(path,'w',encoding=encoding) as f:
         f.write(txt)
 def write_config(config,path,splitchar='='):
+    '''config is a dict,'''
     open(path,'w').close()
     f=open(path,'a')
     for k,v in config.items():
@@ -64,6 +65,10 @@ def read_config(path,splitchar='=',comment_tag='#'):
     f.close()
     return config
 def load_simple_config(fp,line_split='\n',pair_split='=',encoding="utf-8"):
+    '''
+    a=1
+    b=2
+    '''
     with open(fp,'r',encoding=encoding) as f:
         lines=f.read().strip().split(line_split)
         dic={}

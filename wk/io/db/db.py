@@ -12,6 +12,16 @@ class Piu:
         self.dbpath=path
         self.dicpath=os.path.join(self.dbpath,'data.dic')
         self.dic=self.setup()
+        self.pause_save_flag=False
+    def pprint(self):
+        import pprint
+        print(self.dic)
+    def pause_save(self):
+        self.pause_save_flag=True
+    def resume_save(self,save_now=False):
+        self.pause_save_flag=False
+        if save_now:
+            self._save()
     def setup(self):
         if self._exists():return json_load(self.dicpath)
         return self._make()
@@ -38,10 +48,34 @@ class Piu:
     def delete(self,key):
         del self.dic[key]
         self._save()
+    def _match(self,dic,**kwargs):
+        for k,v in kwargs.items():
+            if k not in dic.keys():
+                return False
+            if dic[k]!=v:
+                return False
+        return True
+    def search(self,with_key=None,**kwargs):
+        results={} if with_key else []
+        for k,v in self.dic.items():
+            if isinstance(v,dict) and self._match(v,**kwargs):
+                if with_key:results[k]=v
+                else:results.append(v)
+        return results
+
+    def exists(self,key):
+        if key in self.dic.keys():
+            return True
+        else:
+            return False
     def get(self,*args,**kwargs):
         return self.dic.get(*args,**kwargs)
     def _save(self):
-        json_dump(self.dic,self.dicpath)
+        if self.pause_save_flag:
+            return
+        data=json.dumps(self.dic,ensure_ascii=False,indent=2)
+        with open(self.dicpath,'w',encoding='utf-8') as f:
+            f.write(data)
     def _exists(self):
         if os.path.exists(self.dbpath) and os.path.exists(self.dicpath):
             return True

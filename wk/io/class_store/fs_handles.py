@@ -94,10 +94,11 @@ class DirDict(object):
         return cls(name=name,realpath=realpath)
 
 class FakeOS:
-    def __init__(self,path=None):
+    def __init__(self,path):
         if  path and os.path.exists(path):
             path=os.path.abspath(path)
         self.path=standard_path(path) if path else path
+        self.name=os.path.basename(self.path)
         self.cache={}
     def _relpath(self,root,path):
         return get_relative_path(root,path)
@@ -141,9 +142,9 @@ class FakeOS:
     def info(self, path,depth=2,format=True):
         path = self._truepath(path)
         return PowerDirPath(path).tranverse_info(depth=depth,format=format)
-    def open(self, file, mode='r'):
+    def open(self, file, mode='r',encoding='utf-8'):
         file = self._truepath(file)
-        return open(file, mode)
+        return open(file, mode,encoding=encoding)
     def openDB(self,path):
         path=self._truepath(path)
         from wk import BackupDB
@@ -187,6 +188,8 @@ class FakeOS:
     def writefile(self,path,s,mode='w',encoding='utf-8'):
         path = self._truepath(path)
         open(path,mode=mode,encoding=encoding).write(s)
+    def save_http_file(self,file,path):
+        file.save(self._truepath(path))
     def exists(self,path):
         path = self._truepath(path)
         return os.path.exists(path)

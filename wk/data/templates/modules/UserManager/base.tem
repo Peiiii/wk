@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"  content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Title</title>
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.css" rel="stylesheet" type="text/css">
+    <script src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://cdn.staticfile.org/popper.js/2.4.0/umd/popper.min.js" type="text/javascript"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="https://cdn.staticfile.org/font-awesome/5.13.0/js/all.min.js" type="text/javascript"></script>
+    <script src="https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.js" type="text/javascript"></script>
+</head>
+<body>
+
+{% block body%}
+
+{% endblock %}
+
+</body>
+</html>
