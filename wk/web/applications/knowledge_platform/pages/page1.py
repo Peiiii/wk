@@ -18,6 +18,9 @@ class Parts:
     navigator=lambda :Site.load('Navigator.tem')
     articleCard=lambda :Site.load('ArticleCard.html')
     article=lambda :Site.load('Article.html')
+    userHomePage = lambda: Site.load('UserHomePage.tem')
+    userVisitPage = lambda: Site.load('UserVisitPage.tem')
+    editArticlePage = lambda: Site.load('EditArticle.tem')
     uploadPage = lambda: Site.load('Upload.tem')
 
 class DefaultPageBase(Html):
@@ -201,3 +204,14 @@ class ErrorPage(DefaultPageBase):
                 message
             ]
         )
+
+class NoPermissionPage(DefaultPageBase):
+    def __init__(self,message='你没有权限修改该文章!'):
+        super().__init__()
+        self.compile(
+            body=[
+                Parts.plain.navigator(),
+                message
+            ]
+        )
+

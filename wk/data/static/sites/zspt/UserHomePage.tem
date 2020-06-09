@@ -2,21 +2,109 @@
 {% set URL=context.URL %}
 {% set wk=context.utils.wk %}
 {% set articles=user['articles'] %}
+<script>
+    function notify(message) {
+        $.jGrowl(message, {position: 'center'});
+    }
+
+    function check_status(data) {
+        if (data.success) {
+            if (data.message) {
+                notify(data.message);
+            }
+        } else {
+            if (data.message) {
+                notify(data.message);
+            }
+        }
+    }
+
+    function perform_action(data) {
+        var params = data.params;
+        switch (data.action) {
+            case "redirect":
+                document.location.href = params.location;
+                break;
+            case "refresh":
+                document.location.reload();
+                break;
+            default:
+                break;
+        }
+    }
+
+    function post_json(url, data, func = null) {
+        console.log(data);
+        $.post({
+            url: url,
+            data: JSON.stringify(data),
+            contentType: 'application/json',
+            success: res => {
+                console.log(res);
+                check_status(res);
+                // perform_action(res);
+                if (func) {
+                    func(res);
+                }
+            }
+        });
+    }
+
+    function delete_article(id) {
+        alertify.confirm('确定删除文章吗?', () => {
+            post_json(
+                "{{ URL.article.delete }}",
+                {article_id: id},
+                (res) => {
+                    check_status(res);
+                    perform_action(res);
+                },
+            )
+        });
+
+    }
+</script>
 <div class="root min-vh-100 py-lg-5 px-2 py-5" style="background-color: #E0E0E0;">
     <div class="user-page mx-auto bg-light p-2" style="max-width: 40em;">
 
-        <a href="{{ user['url'] }}"><img class="rounded-circle m-2" src="{{ user['avatar'] }}"
-                                         style="width: 64px;height: 64px;"></a>
+        <a href="{{ context.get_user_link(user['id']) }}"><img class="rounded-circle m-2" src="{{ user['avatar'] }}"
+                                                               style="width: 64px;height: 64px;"></a>
         <h5 class="username">{{ user['username'] }}</h5>
+
+        <h3 class="badge badge-success my-2">已发布</h3>
         <div class="list-group mt-3" style="max-width: 30em;font-size: 0.8em;">
-            {% for article in articles %}
-                <a href="{{ article['url'] }}" class="list-group-item list-group-item-action">{{ article['title'] }}</a>
+            {% for article_id in user['public_articles'] %}
+                {% set article = context.get_article(article_id) %}
+                <a href="{{ context.get_article_link(article_id) }}"
+                   class="list-group-item list-group-item-action">{{ article['title'] }}</a>
+                <span class="badge badge-dark">{{ wk.to_chinese_date(article['last_edit']) }}</span>
+                <div class="btn-group" role="group" aria-label="Basic example">
+                    <a class="btn btn-sm btn-secondary"
+                       href="{{ URL.article.getter.edit(article_id) }}">编辑文章</a>
+
+                    <button type="button" class="btn btn-sm btn-secondary"
+                            href="{{ URL.article.getter.delete(article_id) }} }}"
+                            onclick="delete_article('{{ article_id }}')">删除
+                    </button>
+                </div>
+
+            {% endfor %}
+        </div>
+        {#private articles#}
+        <h3 class="badge badge-success mt-4 mb-2">未发布</h3>
+        <div class="list-group mt-3" style="max-width: 30em;font-size: 0.8em;">
+            {% for article_id in user['private_articles'] %}
+                {% set article = context.get_article(article_id) %}
+                <a href="{{ context.get_article_link(article_id) }}"
+                   class="list-group-item list-group-item-action">{{ article['title'] }}</a>
                 <span class="badge badge-dark">{{ wk.to_chinese_date(article['last_edit']) }}</span>
                 <div class="btn-group" role="group" aria-label="Basic example">
                     <a class="btn btn-sm btn-secondary"
                        href="{{ URL.article.edit+'?article_id='+article['id'] }}">编辑文章</a>
-                    <button type="button" class="btn btn-sm btn-secondary" href="{{ article[id] }}"
-                            onclick="alertify.confirm('确定删除文章吗?');">删除
+                    <a class="btn btn-sm btn-secondary"
+                       href="{{ URL.article.getter.publish(article_id) }}">发布文章</a>
+                    <button type="button" class="btn btn-sm btn-secondary" href="{{ article['id'] }}"
+                            onclick="delete_article('{{ article_id }}')">删除
                     </button>
                 </div>
 

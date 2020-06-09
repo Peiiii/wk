@@ -70,7 +70,7 @@
                     <span class="input-group-text bg-secondary" style="color: white;width: 4em;"
                           id="addon-wrapping">标题</span>
                 </div>
-                <input type="text" id="title-input" name="title" class="form-control" placeholder="" value="{{ article['title'] }}">
+                <input type="text" id="title-input" name="title" class="form-control" placeholder="" value="{{ article['title'] or '' }}">
             </div>
             <div class="input-group flex-nowrap">
                 <div class="input-group-prepend">
@@ -82,13 +82,13 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text bg-secondary" style="color: white;width: 4em;" >摘要</span>
                 </div>
-                <input type="text" id="digest-input" name="digest" class="form-control" value="{{ article['digest'] }}" placeholder="">
+                <input type="text" id="digest-input" name="digest" class="form-control" value="{{ article['digest'] or ''}}" placeholder="">
             </div>
             <div class="input-group flex-nowrap">
                 <div class="input-group-prepend">
                     <span class="input-group-text bg-secondary" style="color: white;width: 4em;">封面</span>
                 </div>
-                <input type="text" id="picture-input" name="picture" class="form-control" value="{{ article['picture'] }}" placeholder="封面图片的链接,如未上传可先上传">
+                <input type="text" id="picture-input" name="picture" class="form-control" value="{{ article['picture'] or '' }}" placeholder="封面图片的链接,如未上传可先上传">
             </div>
         </div>
         <div id="editor" style="border-radius: 0">

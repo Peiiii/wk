@@ -46,8 +46,9 @@ class Piu:
         self.dic.update(**kwargs)
         self._save()
     def delete(self,key):
-        del self.dic[key]
+        value=self.dic.pop(key)
         self._save()
+        return value
     def _match(self,dic,**kwargs):
         for k,v in kwargs.items():
             if k not in dic.keys():

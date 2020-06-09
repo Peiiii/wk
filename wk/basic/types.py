@@ -694,3 +694,34 @@ class StatusSuccess(Status):
 class StatusError(Status):
     def __init__(self,success=False,message="failure",code=-1,data=None,*args,**kwargs):
         super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)
+
+class RuleChecker:
+    def __init__(self,rules=[]):
+        self.rules = []
+        for rule in rules:
+            self.define(*rule)
+    def define(self,rule, res , do_in=None,do_out=None,match_func=None):
+        self.rules.append([rule,res,do_in,do_out,match_func])
+    def _match_rule(self,rule,x):
+        if isinstance(rule,type):
+            return isinstance(x,rule)
+        elif hasattr(rule,'__call__'):
+            return rule(x)
+        else:
+            return rule is x
+    def __call__(self, x , default=None):
+        for rule, res ,do_in,do_out,match_func in self.rules:
+            match_func=match_func or self._match_rule
+            if match_func(rule,do_in(x) if do_in else x):
+                return do_out(res) if do_out else res
+        return default
+
+if __name__ == '__main__':
+    ruler=RuleChecker([
+        ['b',1],
+        [lambda x:x>2 if isinstance(x,int) else False,2,]
+    ])
+    x='b'
+    x=ruler(x)
+    print(x)
+

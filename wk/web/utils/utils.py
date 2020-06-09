@@ -140,37 +140,6 @@ class Context(PointDict):
 def log(*msgs):
     print("log".center(10, '*') + ":" + ' '.join([str(msg) for msg in msgs]))
 
-class User(dict):
-    default_info = dict(
-        id=lambda :uuid.uuid4().hex,
-        username=None,
-        email=None,
-        password=None,
-        signature=None,
-        avatar=lambda this:'http://www.gravatar.com/avatar/%s?s=256&d=retro'%(wk.generate_hash(this['email'])),
-        followers=0,
-        following=0,
-        zan=0,
-        cai=0,
-        favList=[],
-        articles=[],
-        drafts=[],
-        link=lambda this:join_path('/u',this['id']),
-    )
-    def __init__(self,**kwargs):
-        def run_func_with_context(func,arg=None):
-            args=inspect.getfullargspec(func)
-            args=args.args
-            if len(args):
-                return func(arg)
-            else:
-                return func()
-        info = kwargs
-        for k, v in self.default_info.items():
-            if k not in info.keys() or info[k] is None:
-                info[k] = self.default_info[k] if not hasattr(self.default_info[k], '__call__') else  run_func_with_context(self.default_info[
-                    k],info)
-        super().__init__(**info)
 
 
 class UserManager:
@@ -192,16 +161,15 @@ class UserManager:
     __status_succeeded__ = 'succeeded'
     __status_failed__ = 'failed'
 
-    def __init__(self, dbpath='./data/user_db', home_url='/', url_prefix='/', signup_url=None, login_url=None,logout_url=None):
+    def __init__(self, dbpath,User, home_url='/', url_prefix='/', signup_url=None, login_url=None,logout_url=None):
         self.db = db.Piu(dbpath)
-        self.update_all_user_fields()
-        # import pprint
-        # print(pprint.pprint(self.db.dic))
+        self.User = User
         self.home_url = home_url
         self.url_prefix = url_prefix
         self.signup_url = signup_url or join_path(url_prefix, 'join')
         self.login_url = login_url or join_path(url_prefix, 'login')
         self.logout_url = logout_url or join_path(url_prefix, 'logout')
+        self.update_all_user_fields()
     def register(self,app):
         app.route(self.signup_url, methods=['get', 'post'])(self.signup())
         app.route(self.login_url, methods=['get', 'post'])(self.login())
@@ -215,11 +183,11 @@ class UserManager:
     def update_all_user_fields(self):
         self.db.pause_save()
         for k, v in self.db.dic.items():
-            v=User(**v)
+            v=self.User(**v)
             self.db.set(k,v)
         self.db.resume_save(save_now=True)
     def add_user(self,user={}):
-        user=User(**user)
+        user=self.User(**user)
         id=user['id']
         self.db.add(id,user)
         return id
@@ -362,7 +330,8 @@ class UserManager:
                     return self.status(self.__status_failed__, msg=msg)
                 # resp = make_response(self.home_page()) if not redirect_to else redirect_to
                 resp = redirect(self.home_url)
-            elif username:
+            else:
+                assert username
                 if not self.db.search(username=username):
                     msg = "Username doesn't exists."
                     print(msg)
@@ -375,6 +344,3 @@ class UserManager:
             return resp
 
         return do_login
-        # def decorator():
-        #
-        # return decorator

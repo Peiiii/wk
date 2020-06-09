@@ -24,18 +24,31 @@ Contents:
     文件
     问答
     知识树
-Next Step:
+**已完成Next Step: 
     实现文章的发布、删除
     publish: 
     delete:
     private:
     三张表：用户文章列表、公开文章列表、回收站文章列表
-    文档引擎三？四？张表：公开文章列表、回收站文章列表、所有文章列表、每个用户文章列表
+    文档引擎三？四？张表：公开文章列表、回收站文章列表、所有文章列表
+    每个用户文章列表: 私有、公开、回收站
     用户发布文章时：
         
     用户删除文章时：
+Bug:
+    用户退出登录后，访问其他用户主页时，导航栏还有其他用户的头像,没有对其他用户进行区分
+Next:
+    已发布文章取消发布?
+    查看已删除的文章？恢复文章？彻底删除？
+    搜索引擎清空索引的方法？
+    文档引擎更新方法？清空方法？
     
-    
+NextNextStep:
+    实现文章的推荐
+    实现文章的组织方式（结构化的系统）
+    文件的筛选方式
+Future:
+    问答、视频、评论系统、内容自动生成
     
 '''
 
@@ -92,11 +105,17 @@ class KnowledgePlatform(web.MyBlueprint):
             upload = join_path(self.url_prefix, Sitemap.upload)
             editor = join_path(self.url_prefix, Sitemap.editor)
 
+
             class article:
                 new = join_path(self.url_prefix, Sitemap.article.new)
                 edit = join_path(self.url_prefix, Sitemap.article.edit)
                 publish = join_path(self.url_prefix, Sitemap.article.publish)
                 delete = join_path(self.url_prefix, Sitemap.article.delete)
+
+                class getter:
+                    edit =lambda id: join_path(self.url_prefix, Sitemap.article.edit)+'?article_id=%s'%(id)
+                    publish =lambda id: join_path(self.url_prefix, Sitemap.article.publish)+'?article_id=%s'%(id)
+                    delete =lambda id: join_path(self.url_prefix, Sitemap.article.delete)+'?article_id=%s'%(id)
 
             class prefix:
                 article = join_path(self.url_prefix, Sitemap.prefix.article)
@@ -104,25 +123,32 @@ class KnowledgePlatform(web.MyBlueprint):
                 static_files = join_path(self.url_prefix, Sitemap.prefix.static_files)
                 pkg_resource = join_path(self.url_prefix, Sitemap.prefix.pkg_resource)
 
-        class Context(web.Context):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self.update(
-                    URL=URL
-                )
 
         self.serve_root = serve_root
         self.usman = web.UserManager(PATH.user_manager,
+                                     User=engines.User,
                                      home_url=URL.home,
                                      signup_url=URL.signup,
                                      login_url=URL.login,
                                      logout_url=URL.logout, )
         self.usman.register(self)
-        self.document_engine = ENGINE.DocumentStorageEngine(PATH.document_storage_engine,
-                                                            id2url=lambda id: join_path(URL.prefix.article, id))
         self.index_engine = ENGINE.IndexEngine(PATH.index_engine)
         self.search_engine = ENGINE.SearchEngine(self.index_engine)
         self.static_storage_engine = ENGINE.StaticStorageEngine(PATH.static_storage_engine, check_when_start=True)
+        self.document_engine = ENGINE.DocumentStorageEngine(PATH.document_storage_engine,
+                                                            index_engine=self.index_engine, usman=self.usman,
+                                                            id2url=lambda id: join_path(URL.prefix.article, id))
+        app=self
+        class Context(web.Context):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.update(
+                    URL=URL,
+                    get_user=app.usman.get_user,
+                    get_article=app.document_engine.get,
+                    get_user_link=lambda id:join_path(URL.prefix.user,id),
+                    get_article_link=lambda aid:join_path(URL.prefix.article,aid),
+                )
 
         # ###################Site Home Page####################
         @self.route(Sitemap.home, methods=['get'])
@@ -162,20 +188,23 @@ class KnowledgePlatform(web.MyBlueprint):
                 return pages.UserHomePage().render(context=context)
 
         # ###################Article New Edit Publish Delete######################
-
         @self.route(Sitemap.article.new, methods=['post', 'get'])
         @self.usman.login_required
         @self.usman.get_user_context(arg_name='user')
         @web.parse_from(web.get_form, web.get_json, web.get_url_args)
-        def do_edit(article_id, object, user):
+        def do_new_edit_article(article_id, object, user):
             document = object
             context = Context(user=user, article=None)
             if article_id:
+                # 编辑文章
+                if not user.is_own_article(article_id):
+                    return pages.NoPermissionPage().render(context=context)
                 if document:
+                    # post
                     self.document_engine.update_document(article_id, document)
                     return web.ActionRedirect(location=URL.home, message="上传成功!").jsonify()
                 else:
-                    # 编辑文章
+                    # get
                     document = self.document_engine.get(article_id)
                     context.article = document
                     return pages.EditArticlePage().render(context=context)
@@ -183,20 +212,45 @@ class KnowledgePlatform(web.MyBlueprint):
                 # 创建新文章
                 doc = object
                 if doc is None:
+                    # get
                     return pages.EditArticlePage().render(context=context)
-                print(doc)
-                res = self.document_engine.check(doc)
-                if not res['success']:
-                    return jsonify(res)
-                doc['author'] = user['id']
+                else:
+                    # post
+                    print(doc)
+                    res = self.document_engine.check(doc)
+                    if not res['success']:
+                        return jsonify(res)
+                    ret = self.document_engine.new(user,doc)
+                    print("saved, info : %s" % (ret))
+                    return web.ActionRedirect(location='/', message="上传成功!").jsonify()
 
-                ret = self.document_engine.save(doc)
-                user['articles'].append(ret['id'])
-                self.usman.set_user(user['id'], user)
+        ###################Publish Article#####################
+        @self.route(Sitemap.article.publish, methods=['post', 'get'])
+        @self.usman.login_required
+        @self.usman.get_user_context(arg_name='user')
+        @web.parse_from(web.get_form, web.get_json, web.get_url_args)
+        def do_publish_article(article_id, user):
+            context = Context(user=user, article=None)
+            assert article_id,user
+            if not user.is_own_article(article_id):
+                return pages.NoPermissionPage().render(context=context)
+            if not self.document_engine.is_private(article_id):
+                return web.StatusErrorResponse(message='你不能发布该文章').jsonify()
+            url=self.document_engine.publish(user,article_id)
+            return web.ActionRedirect(location=url,message='发布成功!').jsonify()
 
-                print("saved, info : %s" % (ret))
-                self.index_engine.add_document(ret['id'], doc['text'])
-                return web.ActionRedirect(location='/', message="上传成功!").jsonify()
+        ###################Delete Article#####################
+        @self.route(Sitemap.article.delete, methods=['post', 'get'])
+        @self.usman.login_required
+        @self.usman.get_user_context(arg_name='user')
+        @web.parse_from(web.get_form, web.get_json, web.get_url_args)
+        def do_delete_article(article_id,  user):
+            context = Context(user=user, article=None)
+            assert article_id, user
+            if not user.is_own_article(article_id):
+                return pages.NoPermissionPage().render(context=context)
+            ret = self.document_engine.delete_article(user, article_id)
+            return web.ActionRefresh(message=ret or '删除成功').jsonify()
 
         # ##################Search Files##########################
         @self.route(Sitemap.search_file + '/', methods=['post', 'get'])
