@@ -210,6 +210,9 @@ class UserManager:
     def home_page(self, **kwargs):
         return redirect('/')
 
+    def redirect_page(self,target,target_text=None,message=None,source=None):
+        return usman_env.get_template('Redirect.tem').render(target=target,target_text=target_text,message=message,source=source)
+
     def signup_page(self, target, method='post', **kwargs):
         return usman_env.get_template('SignUp.tem').render(action=target, method=method, **kwargs)
 
@@ -227,6 +230,8 @@ class UserManager:
             def wrapper(email, username, password, *args, **kwargs):
                 # log(email,username,password)
                 user=self.check_user(email,username,password)
+                if not isinstance(user,self.User):
+                    user= None
                 kwargs.update(**{arg_name:user})
                 return f(*args,**kwargs)
             return wrapper
@@ -237,7 +242,8 @@ class UserManager:
         if email:
             user = self.db.search(email=email)
             if not user:
-                return self.signup_page(target=self.home_url, method='post')
+                return self.redirect_page(target=self.signup_url,target_text='登录页面',message='请注册')
+                # return self.signup_page(target=self.home_url, method='post')
             user=user[0]
             if user and (user['email'] == email) and (user['password'] == password):
                 return user
@@ -259,11 +265,13 @@ class UserManager:
         def wrapper(email, username,password, *args, **kwargs):
             # print(email,username,password)
             if not (email and password) and not(username and password):
-                return self.login_page(target=self.login_url,method='post')
+                return self.redirect_page(target=self.signup_url,target_text='登录页面', message='请先登录')
+                # return self.login_page(target=self.login_url,method='post')
             if email:
                 user = self.db.search(email=email)
                 if not user:
-                    return self.signup_page(target=self.signup_url, method='post')
+                    return self.redirect_page(target=self.signup_url,target_text='注册页面',message='请注册')
+                    # return self.signup_page(target=self.signup_url, method='post')
                 user=user[0]
                 if user and (user['email'] == email) and (user['password'] == password):
                     return f(*args, **kwargs)
@@ -272,7 +280,8 @@ class UserManager:
             elif username:
                 user = self.db.search(username=username)
                 if not user:
-                    return self.signup_page(target=self.signup_url, method='post')
+                    return self.redirect_page(target=self.signup_url,target_text='注册页面', message='请注册')
+                    # return self.signup_page(target=self.signup_url, method='post')
                 if user:
                     user=user[0]
                 if user and (user['username'] == username) and (user['password'] == password):

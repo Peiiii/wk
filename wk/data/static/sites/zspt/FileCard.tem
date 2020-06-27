@@ -1,0 +1,4 @@
+<div class="list-group-item">
+    <a href="{{ file['url'] }}" class="text-black-50 font-weight-bolder" >{{ file['name'] }}</a>
+    <span class="badge badge-secondary ml-2">{{ file['size'] }}</span>
+</div>

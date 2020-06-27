@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .space {
+            width: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div style="max-width: 40rem; min-height:100px;margin: auto;text-align: center;margin-top: 5rem;">
+    <p>
+        即将跳转至
+        {% if not target_text %}
+            <a href="{{ target }}">{{ target }}</a>
+        {% endif %}
+        {% if target_text %}
+            <a href="{{ target }}">{{ target_text }}</a>
+        {% endif %}
+
+    </p>
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+    <p>
+        <a href="{{ target }}" style="color: orange">立即跳转</a>
+        <span class="space"></span>
+        {% if source %}
+            <a href="{{ source }}">返回</a>
+        {% endif %}
+    </p>
+</div>
+
+</body>
+</html>

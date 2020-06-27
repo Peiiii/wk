@@ -1,0 +1,253 @@
+{#<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>#}
+
+{#<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/themes/default/style.min.css"/>#}
+{#<script src="//cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/jstree.min.js"></script>#}
+<script src="https://cdn.staticfile.org/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
+{#<script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>#}
+{#<script src="{{ context.URL.getter.pkg_resource('js/easy-toggle-state.es6.min.js') }}"></script>#}
+{% set SIDEBAR_WIDTH_LG='150px' %}
+{% set SIDEBAR_WIDTH_MD='80px' %}
+<style>
+    body{
+        background-color: #F3F3F3;
+    }
+
+    .wrapper {
+        box-sizing: border-box;
+        margin: 0;
+        display: flex;
+        width: 100%;
+        align-items: stretch;
+    }
+
+    #content {
+        flex-shrink: 1;
+        flex-grow: 1;
+        height: 89vh;
+    {#margin: fill;#}{#padding-right:20px;#}{#max-height: 91vh;#} overflow-y: scroll;
+        overflow-x: hidden;
+
+        box-sizing: border-box;
+    }
+
+    #sidebar {
+        padding: 10px;
+        flex-shrink: 0;
+        flex-grow: 0;
+        box-sizing: border-box;
+        width: {{ SIDEBAR_WIDTH_LG }};
+    {#position: fixed;#} top: 0;
+        left: 0;
+        height: 89vh;
+    {#max-height: 90vh;#} z-index: 999;
+        background: #7386D5;
+        color: #fff;
+        transition: all 0.3s;
+        overflow: scroll;
+    }
+
+    #sidebar li {
+    {#height: 200px;#}
+    }
+
+    #sidebar a {
+        color: white;
+    }
+
+    #sidebar.sidebar-active {
+        margin-left: -{{ SIDEBAR_WIDTH_LG }};
+    }
+
+    a[data-toggle="collapse"] {
+        position: relative;
+    }
+
+    .category-endpoint + .list {
+        margin-left: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        #sidebar {
+            margin-left: -{{ SIDEBAR_WIDTH_MD }};
+            width: {{ SIDEBAR_WIDTH_MD }} !important;
+            font-size: 0.8rem;
+        }
+
+        #sidebar.sidebar-active {
+            margin-left: 0;
+        }
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#sidebar").niceScroll({
+            {#autohidemode:'hidden',#}
+            cursorwidth: 0,
+            cursorborder: "0px solid #fff",
+            cursoropacitymax: 0
+        });
+
+        $("#content").niceScroll({
+            {#cursorwidth: 0,#}
+            {#cursorborder: "0px solid #fff",#}
+            {#cursoropacitymax: 0#}
+        });
+
+        $('#sidebarCollapse').on('click', function () {
+            $('#sidebar').toggleClass('sidebar-active');
+            {#$('#sidebar').getNiceScroll().remove();#}
+        });
+
+    });
+</script>
+{#<script>#}
+{#    function uuid() {#}
+{#        var s = [];#}
+{#        var hexDigits = "0123456789abcdef";#}
+{#        for (var i = 0; i < 36; i++) {#}
+{#            s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);#}
+{#        }#}
+{#        s[14] = "4"; // bits 12-15 of the time_hi_and_version field to 0010#}
+{#        s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1); // bits 6-7 of the clock_seq_hi_and_reserved to 01#}
+{#        s[8] = s[13] = s[18] = s[23] = "-";#}
+{#        return s.join("");#}
+{#    }#}
+{##}
+{#    function get_tree_data() {#}
+{#        return JSON.parse($('#tree-data').text());#}
+{#    }#}
+{##}
+    {#function get_category_url(cate) {#}
+    {#let prefix="{{ context.URL.search_file }}";#}
+    {#return putArgumentsToUrl({category:''})#}
+    {#}#}
+{##}
+{#        function to_tree(data, parent) {#}
+{#            let list = [];#}
+{#            for (let i in Object.keys(data)) {#}
+{#                let key = Object.keys(data)[i];#}
+{#                let item, cate;#}
+{#                if (parent) cate = parent + '@' + key;#}
+{#                else cate = key;#}
+{#                if ($.isPlainObject(data[key])) {#}
+{#                    let id = uuid();#}
+{#                    let child_string = ` <ul class="collapse list-unstyled list" id="${id}">${to_tree(data[key], cate)}</ul>`;#}
+{#                    item = `<li class=""><a  data-target="#${id}"   class="wp-dropdown-toggle "></a><a class="category-endpoint" category="${cate}">${key}</a>#}
+{#${child_string}#}
+{#</li>`;#}
+{#                } else {#}
+{#                    let id = data[key];#}
+{#                    item = `<li class=""><a role="button" category="${cate}" class="category-endpoint" >${key}</a></li>`;#}
+{#                }#}
+{##}
+{#                list.push(item);#}
+{#            }#}
+{#            list = list.join('');#}
+{#            return list;#}
+{##}
+{#        }#}
+{#</script>#}
+{#<script>#}
+{#    $(document).ready(() => {#}
+{#        function init_tree() {#}
+{#            let data = get_tree_data();#}
+{#            console.log(data);#}
+{#            let html = to_tree(data);#}
+            {#console.log(html);#}
+{#            $('#category-tree').append(html);#}
+{#        }#}
+{##}
+{#        init_tree();#}
+{##}
+{#        $('.category-endpoint').click((e) => {#}
+{#            let target=$(e.target);#}
+{#            let cate= target.attr('category');#}
+{#            putArgumentsToUrl({category:cate});#}
+{#        });#}
+{##}
+{#        function init_wp_dropdown_toggle() {#}
+{#            var toggles = $('.wp-dropdown-toggle');#}
+{#            var html = `<span class="wp-switch"><i class="fa fa-plus-square switch-on"></i><i#}
+{#                        class="fa fa-minus-square switch-off"></i></span>`;#}
+{#            for (var i = 0; i < toggles.length; i++) {#}
+{#                let toggle_ori = $(toggles[i]);#}
+{#                let target = toggle_ori.attr('data-target') || toggle.attr('data-target');#}
+{#                target = $(target);#}
+{#                if (!target.length) continue;#}
+{#                let toggle = $(html);#}
+{#                toggle_ori.prepend(toggle);#}
+{##}
+{##}
+{#                function init_status(toggle, target) {#}
+{#                    if (target.hasClass('collapse')) {#}
+{#                        toggle.addClass('wp-collapse');#}
+{#                    }#}
+{#                }#}
+{##}
+{#                init_status(toggle, target);#}
+{##}
+{#                function perform_status(toggle, target) {#}
+{#                    let onview = toggle.find('.switch-on');#}
+{#                    let offview = toggle.find('.switch-off');#}
+{#                    if (toggle.hasClass('wp-collapse')) {#}
+{#                        onview.show();#}
+{#                        offview.hide();#}
+{#                    } else {#}
+{#                        onview.hide();#}
+{#                        offview.show();#}
+{#                    }#}
+{#                }#}
+{##}
+{#                perform_status(toggle, target);#}
+{##}
+{#                function toggle_it(e) {#}
+{#                    let target = $(toggle_ori.attr('data-target') || toggle.attr('data-target'));#}
+{#                    target.collapse('toggle');#}
+{#                    toggle.toggleClass('wp-collapse');#}
+{#                    perform_status(toggle, target);#}
+{#                }#}
+{##}
+                {#toggle_ori.click(toggle_it);#}
+{#                toggle.click(toggle_it);#}
+{#            }#}
+{##}
+{#        }#}
+{##}
+{#        init_wp_dropdown_toggle();#}
+{#    })#}
+{#</script>#}
+{##}
+{##}
+{#<div class="wrapper d-flex w-100" style="">#}
+{#    <div id="tree-data" class="hidden" style="display: none;">{{ context.categories }}</div>#}
+{#    <!-- Sidebar -->#}
+{#    <nav id="sidebar" class="" style="">#}
+{#        <div class="sidebar-header">#}
+{#            <p style="font-size: 1.5rem;">文件列表</p>#}
+{#            <hr>#}
+{#        </div>#}
+{##}
+{#        <ul class="list-unstyled components " id="category-tree" style="">#}
+{#            <div role="button" class="my-3">科目</div>#}
+{#            <li>#}
+{#                <a class="unfilter" target="category" role="button" >不限</a>#}
+{#            </li>#}
+{#        </ul>#}
+{##}
+{#    </nav>#}
+
+    <!-- Page Content -->
+    <div id="content">
+
+        <div id="file-search-card" class="mx-auto" style="max-width: 40rem;">
+            <% include 'FileSearchCard.tem'%>
+        </div>
+        <div id="file-search-card" class="mx-auto " style="max-width: 40rem;">
+            <% include "FileList.tem" %>
+        </div>
+
+    </div>
+
+
+</div>
+

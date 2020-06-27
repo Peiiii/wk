@@ -1,0 +1,6 @@
+<div class="row text-center">
+    <div class="col-auto mx-auto my-5">
+        <p class="text-success">{{message or '成功!'}}</p>
+        <p class="text-info"><a href="{{link}}">{{link_text or '链接'}}</a> </p>
+    </div>
+</div>

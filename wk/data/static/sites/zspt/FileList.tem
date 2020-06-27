@@ -1,0 +1,82 @@
+{% set builtin=context.builtin %}
+{% set URL=context.URL %}
+<style>
+    .file-card {
+        border: gray dotted 1px;
+    }
+
+    .file-card:hover {
+        border: #007bff 1px solid;
+    }
+
+    i.operation:hover {
+    {#color: #007bff;#} color: green;
+    }
+</style>
+<script>
+    function init_file_list() {
+        $('.operation').click((e) => {
+            var type = $(e.target).attr('type');
+            var file_id = $(e.target).parent().attr('file-id');
+            console.log(file_id);
+            switch (type) {
+                case 'UpVote':
+                    $.get({
+                        url: '{{ URL.file.like }}?file_id=' + file_id, success: (res) => {
+                            console.log(res);
+                        }
+                    });
+                    break;
+                case 'DownVote':
+                    $.get({
+                        url: '{{ URL.file.dislike }}?file_id=' + file_id, success: (res) => {
+                            console.log(res);
+                        }
+                    });
+                    break;
+                default:
+                    break;
+            }
+
+        })
+    }
+
+    $(document).ready(() => {
+        init_file_list();
+    })
+</script>
+
+<nav class="  file-list w-100 mx-auto" style="max-width: 40rem;background-color: white !important;">
+    <div class="container-fluid w-100">
+
+
+        <div class="file-card-list w-100 " >
+            <div class="mb-4">
+                <span class="badge badge-pill float-right">共{{ builtin.len(files) }}条结果</span>
+            </div>
+            <div class="clearfix"></div>
+            {% for file in files %}
+                <div class="text-left file-card p-2" file-id="{{ file['id'] }}"
+                     style="display: flex;flex-flow: row-reverse;align-items: stretch;font-size: smaller">
+                    {#                    <div style="flex:0 0 50px;">#}
+                    {#                        <i class="fa fa-thumbs-down float-right operation ButtonDownVote m-1" type="DownVote"#}
+                    {#                           zico="反对手形"></i>#}
+                    {#                        <i class="fa fa-thumbs-up float-right operation ButtonUpVote m-1" type="UpVote"#}
+                    {#                           zico="点赞"></i>#}
+                    {#                    </div>#}
+                    <div style="flex:0 0 50px;">
+                        <span class="badge badge-secondary ml-2">{{ file['size'] }}</span>
+                    </div>
+                    <div style="flex:1 1">
+                        <a href="{{ file['url'] }}" class="text-black-50 font-weight-bolder">{{ file['name'] }}</a>
+
+                    </div>
+
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</nav>
+
+

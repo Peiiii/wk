@@ -1,0 +1,9 @@
+{% extends "base.tem" %}
+
+{% block body %}
+
+    <div class="mx-auto text-center">
+    <h1 class="text-warning">{{ message or 'Error!' }}</h1>
+    </div>
+
+{% endblock %}

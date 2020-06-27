@@ -1,0 +1,180 @@
+<script>
+    function getUrlArguments(url) {
+        var name, value;
+        var str = url || document.location.href; //取得整个地址栏
+        str = str.split('#', 1)[0];
+        var num = str.indexOf("?");
+        str = str.substr(num + 1); //取得所有参数   stringvar.substr(start [, length ]
+        var arr = str.split("&"); //各个参数放到数组里
+        {#console.log(arr);#}
+        var obj = {};
+        for (var i = 0; i < arr.length; i++) {
+            num = arr[i].indexOf("=");
+            if (num > 0) {
+                name = arr[i].substring(0, num);
+                value = arr[i].substr(num + 1);
+                obj[name] = value;
+            }
+        }
+        return obj;
+    }
+
+    function get_current_element_from_url(url) {
+        url = url || document.location.href;
+        var arr = url.split('#', 1);
+        if (arr.length > 1) {
+            return arr[1];
+        }
+        return null;
+
+    }
+
+    function putArgumentsToUrl(args, remove_keys = []) {
+        var existed_args = getUrlArguments();
+        args = Object.assign(existed_args, args);
+        remove_keys.forEach((key) => {
+            delete args[key];
+        });
+        var text = document.location.href;
+        var ind = text.indexOf('?');
+        var prefix = text.slice(0, ind);
+        var tmp = [];
+        Object.keys(args).forEach((key) => {
+            tmp.push(`${key}=${args[key]}`);
+        });
+        tmp = tmp.join('&');
+        var url = prefix + '?' + tmp;
+        var el = get_current_element_from_url();
+        if (el) url += '#' + el;
+        {#console.log(url);#}
+        document.location.href = url;
+    }
+
+    function post_search_form() {
+        var q = $('#search-input').val();
+        var args = getUrlArguments();
+        args['q'] = q;
+        putArgumentsToUrl(args);
+    }
+
+    function updateStatus() {
+        var args = getUrlArguments();
+        {#console.log(args);#}
+        var filters = $('.filter');
+        for (var key in args) {
+            for (var i = 0; i < filters.length; i++) {
+                var filter = $(filters[i]);
+                if (filter.attr('filter-name') == key) {
+                    var items = filter.find('.filter-item');
+                    for (var j = 0; j < items.length; j++) {
+                        var item = $(items[j]);
+                        if (item.attr('filter-item-name') == args[key]) {
+                            item.addClass('active');
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    function bind_no_limit() {
+        let els = $('.unfilter[target]');
+        for (let i = 0; i < els.length; i++) {
+            let el = $(els[i]);
+            let target = el.attr('target');
+            el.click(() => {
+                putArgumentsToUrl({}, [target]);
+            })
+        }
+    }
+
+    $(document).ready(() => {
+        updateStatus();
+        $('#search-input').keydown((e) => {
+            if (e.keyCode === 13) {
+                post_search_form();
+            }
+        });
+        var filters = $('#filter-group').find('.filter');
+        for (var i = 0; i < filters.length; i++) {
+            var filter = $(filters[i]);
+            var items = filter.find('.filter-item');
+            let filter_name = filter.attr('filter-name');
+            for (var j = 0; j < items.length; j++) {
+                var item = $(items[j]);
+                if (item.attr('filter-item-name') == 'nolimit') {
+                } else {
+                    item.click((e) => {
+                        var obj = {};
+                        let item_name = $(e.target).attr('filter-item-name');
+
+                        obj[filter_name] = item_name;
+                        console.log(obj);
+                        putArgumentsToUrl(obj);
+                    });
+                }
+            }
+        }
+        bind_no_limit();
+    })
+</script>
+<style>
+    .filter-item.active {
+        background-color: #007bff;
+        color: white;
+    }
+
+</style>
+
+<div class="search-area bg-white mx-auto  ">
+    {#    <span type="button" id="sidebarCollapse" class="ml-2 mt-2 lt-1">#}
+    {#        <i class="fa fa-align-left"></i>#}
+    {#        <span>Toggle Sidebar</span>#}
+    {#    </span>#}
+    <div style="" class="m-auto p-3   max-vh-30">
+        <div active="/filestore" method="get" class="mx-auto">
+            <div class="input-group mb-3 mt-3 mx-auto" style="max-width: 30rem;">
+                <input type="text" id="search-input" class="form-control"
+                       placeholder="{{ placeholder  or '输入关键词，如“数学立体几何”' }}"
+                       name="q" value="{{ input_fill or '' }}">
+                <div class="input-group-append">
+                    <button class="btn btn-success" type="button" id="basic-addon2" onclick="post_search_form()">Search
+                    </button>
+                </div>
+            </div>
+            <div class="row my-0 py-0">
+                <div class="col-auto mx-auto my-0">
+                    <div class=" mx-auto">
+                        <span class="mr-3 text-dark">常用关键词</span>
+                        <span class=" my-0"><a href="?q=知识点">知识点</a></span>
+                        <span class=" my-0"><a href="?q=总结">总结</a></span>
+                        <span class=" my-0 mr-5"><a href="?q=思维导图">思维导图</a></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3" style="" id="filter-group">
+        <div class="mx-auto col-auto">
+            {% for f in context.filters %}
+                <div class="filter row ml-3" filter-name="{{ f.name }}">
+                    <div class=" mr-3 font-weight-bolder">
+                        <a class=" text-dark">{{ f.title }}</a>
+                    </div>
+
+                    <div class="d-flex flex-row">
+                        <span class="filter-item unfilter px-1" style="border: none;flex: 1 1;" role="button"
+                              filter-item-name="nolimit" target="{{ f.name }}">不限</span>
+
+                        {% for item in f.choices %}
+
+                            <span class="filter-item px-1" style="border: none;flex:1 1;" role="button"
+                                  filter-item-name="{{ item.name }}">{{ item.title }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>

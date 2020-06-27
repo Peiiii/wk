@@ -23,6 +23,7 @@ def write_txt(txt,path,encoding='utf-8'):
     with open(path,'w',encoding=encoding) as f:
         f.write(txt)
 def write_config(config,path,splitchar='='):
+    '''config is a dict,'''
     open(path,'w').close()
     f=open(path,'a')
     for k,v in config.items():
@@ -63,14 +64,24 @@ def read_config(path,splitchar='=',comment_tag='#'):
             config[key]=value
     f.close()
     return config
-def load_simple_config(fp,line_split='\n',pair_split='=',encoding="utf-8"):
+def load_simple_config(fp,line_split='\n',pair_split='=',encoding="utf-8",comment_tags=['#',';']):
+    '''
+    a=1
+    b=2
+    '''
     with open(fp,'r',encoding=encoding) as f:
         lines=f.read().strip().split(line_split)
         dic={}
         for line in lines:
-            if line.strip().startswith('#'):continue
+            if not line.strip():continue
+            is_comment=False
+            for tag in comment_tags:
+                if line.strip().startswith(tag):
+                    is_comment=True
+                    break
+            if is_comment:continue
             line=line.strip()
-            key,value=line.split(pair_split)
+            key,value=line.split(pair_split,maxsplit=1)
             key=key.strip()
             value=value.strip()
             dic[key]=value

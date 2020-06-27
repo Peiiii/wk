@@ -1,4 +1,4 @@
-import os,shutil,glob
+import os,shutil,glob,inspect
 class _T(str):
     def __call__(self, s):
         if s.upper()==self or s==self:
@@ -388,7 +388,8 @@ class DirPath(str):
         if os.path.isdir(self):
             return os.listdir(self)
 
-
+def get_file_info(path,depth=-1,format=True):
+    return DirPath(path).tranverse_info(depth=depth,format=format)
 class PowerDirPath(DirPath):
     '''
     This class can be very distructive.
@@ -473,6 +474,8 @@ class FSItemInfo(PointDict):
         return self
 
 
+
+
 def dir_tree(dir):
     dic=PointDict()
     items=os.listdir(dir)
@@ -507,6 +510,10 @@ def to_datetime_str(t):
     import time
     t=time.gmtime(t)
     return time.strftime('%Y-%m-%d %H:%M:%S',t)
+def to_date_str(t):
+    import time
+    t=time.gmtime(t)
+    return time.strftime('%Y-%m-%d',t)
 
 class FileDirDict(PointDict):
     __type_file__='<type:file>'
@@ -647,6 +654,7 @@ class FileDirDict(PointDict):
                           cell_border=cell_border,fillchar=fillchar,delimiter=delimiter)
     def pprint2(self):
         return self.print2(step=5, space_around_delimiter=0, fillchar='`', cell_border='|', delimiter=':')
+
 class DirTree(FileDirDict):
     def __init__(self,path):
         path=DirPath(path)
@@ -685,6 +693,7 @@ class DirTree(FileDirDict):
     def pppprint(self):
         return self.pprint2()
 
+
 class Status(PointDict):
     def __init__(self,success=True,message="success",code=0,data=None,*args,**kwargs):
         super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)
@@ -715,6 +724,32 @@ class RuleChecker:
             if match_func(rule,do_in(x) if do_in else x):
                 return do_out(res) if do_out else res
         return default
+
+class DefaultDict(dict):
+    default={
+
+    }
+    def __init__(self, **kwargs):
+        def run_func_with_context(func, arg=None):
+            # print(func)
+            try:
+                args = inspect.getfullargspec(func)
+            except TypeError as e:
+                return func()
+
+            args = args.args
+            if len(args):
+                return func(arg)
+            else:
+                return func()
+
+        info = kwargs
+        for k, v in self.default.items():
+            if k not in info.keys() or info[k] is None:
+                info[k] = self.default[k] if not hasattr(self.default[k],
+                                                              '__call__') else run_func_with_context(self.default[
+                                                                                                         k], info)
+        super().__init__(**info)
 
 if __name__ == '__main__':
     ruler=RuleChecker([

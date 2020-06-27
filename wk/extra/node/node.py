@@ -116,9 +116,6 @@ class Node(metaclass=NodeMetaClass):
         if not isinstance(children, (list,)):
             assert isinstance(children, (Node, str, Var))
             children = [children]
-        # for i,child in enumerate(children):
-        #     if isinstance(child ,str):
-        #         children[i]=Text()(child)
         self.children = children
         return self
 
@@ -131,18 +128,13 @@ class Node(metaclass=NodeMetaClass):
         if not len(self.children):
             return self
         index=0
-        # print(self.children)
-        # print("compiling:",type(self))
-        # print([type(child) for child in self.children])
         for i in range(len(self.children)):
             child=self.children[index]
-            # print("type:",type(child))
             if isinstance(child, str):
                 index+=1
                 continue
             if isinstance(child, Var):
                 name = child.attrs['name']
-                # print("var:",name)
                 if name in kwargs.keys():
                     self.children.pop(index)
                     new_nodes=kwargs[name]
@@ -163,7 +155,8 @@ class Node(metaclass=NodeMetaClass):
         render_kwargs={}
         render_kwargs.update(**self.environment)
         render_kwargs.update(**kwargs)
-        from jinja2 import Environment
+        from jinja2 import Environment,Template
+
         tem = Environment().from_string(self.to_string())
         return tem.render(**render_kwargs)
 

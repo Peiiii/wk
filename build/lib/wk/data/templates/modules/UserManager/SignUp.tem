@@ -1,0 +1,71 @@
+{% extends "base.tem" %}
+
+{% block body %}
+
+
+
+    <div class="mx-auto my-5" style="max-width: 30em;">
+
+
+        <form action="{{ action }}" method="{{ method or 'get' }}">
+            <div class="form-group">
+                <label for="exampleInputEmail1">用户名</label>
+                <input type="text" id="username-input" name="username" class="form-control"  aria-describedby="emailHelp"
+                       placeholder="Enter username">
+                <small id="emailHelp" class="form-text text-muted">长度至少为2</small>
+            </div>
+            <div class="form-group">
+                <label for="exampleInputEmail1">电子邮箱</label>
+                <input type="email" id="email-input" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                       placeholder="Enter email">
+                <small id="emailHelp" class="form-text text-muted">我们不会将你的信息分享给任何人</small>
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">密码</label>
+                <input type="password" name="password" class="form-control" id="pw1" placeholder="输入您的密码">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">确认密码</label>
+                <input type="password" name="confirm-password" class="form-control" id="pw2" placeholder="请再次输入您的密码">
+                <small id="pw-hint" class="form-text text-warning"></small>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                <label class="form-check-label" for="exampleCheck1">勾选代表您已阅读并同意<a href="#">用户协议</a></label>
+            </div>
+            <button type="submit" id="btn-submit" class="btn btn-primary mt-4 float-right">提交</button>
+        </form>
+    <script>
+        $(document).ready(()=>{
+            $('#pw2').on('input propertychange',()=>{
+                var pw1=$('#pw1');
+                if(pw1.val()!=$('#pw2').val()){
+                    $('#pw-hint').text('两次输入的密码不一致!');
+                    $('#pw-hint').removeClass('text-success').addClass('text-warning');
+                }else {
+                    $('#pw-hint').text('两次输入密码一致');
+                    $('#pw-hint').removeClass('text-warning').addClass('text-success');
+                }
+            });
+            $('#btn-submit').click((e)=>{
+                if(!$('#username-input').val().trim()){
+                    $.jGrowl("请输入用户名");
+                    e.preventDefault();
+                }
+                if(!$('#username-input').val().trim()){
+                    $.jGrowl("请输入邮箱");
+                    e.preventDefault();
+                }
+                if(!$('#pw1').val().trim()){
+                    $.jGrowl("请输入密码");
+                    e.preventDefault();
+                }
+                if($('#pw1').val()!=$('#pw2').val()){
+                    $.jGrowl("两次输入密码不一致");
+                    e.preventDefault();
+                }
+            })
+        })
+    </script>
+    </div>
+{% endblock %}

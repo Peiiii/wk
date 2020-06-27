@@ -13,6 +13,8 @@ class Urls:
         font_awesome = 'https://cdn.staticfile.org/font-awesome/5.13.0/js/all.min.js'
         jgrowl = 'https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.js'
         alertify = 'https://cdn.staticfile.org/AlertifyJS/1.13.1/alertify.min.js'
+        zico = 'http://ico.z01.com/zico.min.js'
+        storejs = 'https://cdn.staticfile.org/store.js/2.0.12/store.everything.min.js'
 
         class highlightjs:
             highlightjs = 'https://cdn.staticfile.org/highlight.js/10.0.3/highlight.min.js'
@@ -43,6 +45,7 @@ class Urls:
         font_awesome = 'https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css'
         jgrowl = 'https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.css'
         alertify = 'https://cdn.staticfile.org/AlertifyJS/1.13.1/css/alertify.min.css'
+        zico = 'https://ico.z01.com/zico.min.css'
 
         class highlightjs:
             default = 'https://cdn.staticfile.org/highlight.js/10.0.3/styles/default.min.css'
@@ -71,6 +74,8 @@ class QLinks:
 
     class alertify(QStyleLink): _attrs = dict(href=Urls.css.alertify)
 
+    class zico(QStyleLink): _attrs = dict(href=Urls.css.zico)
+
 
 class QScripts:
     class jquery(QUrlScript): _attrs = dict(src=Urls.js.jquery)
@@ -86,6 +91,10 @@ class QScripts:
     class jgrowl(QUrlScript): _attrs = dict(src=Urls.js.jgrowl)
 
     class alertify(QUrlScript): _attrs = dict(src=Urls.js.alertify)
+
+    class zico(QUrlScript): _attrs = dict(src=Urls.js.zico)
+
+    class storejs(QUrlScript): _attrs = dict(src=Urls.js.storejs)
 
 
 class QWindow(Div):

@@ -1,0 +1,40 @@
+<style>
+    .document-card:hover {
+        box-shadow: 1px 1px 2px 2px #ccc;
+    }
+
+    .digest {
+        font-size: 1.12rem;
+        font-weight: 300;
+        line-height: 1.5;
+        color: #9b9b9b;
+
+    }
+</style>
+
+<div class="media mx-auto document-card my-4 p-2 flex-row d-flex"
+     style="max-width: 40rem;transition: all .2s linear;
+    border-radius: 2px; font-family:  PingFang SC,Lantinghei SC,Helvetica Neue,Helvetica,Arial,Microsoft YaHei,微软雅黑,STHeitiSC-Light,simsun,宋体,WenQuanYi Zen Hei,WenQuanYi Micro Hei">
+    {% if article['picture'] %}
+        <img class="" src="{{ article['picture'] }}" style="height: 8rem;width: 216px;border-radius: 5px;"
+             alt="Generic placeholder image">
+    {% endif %}
+    <div class="media-body flex-column d-flex pl-3" style="height: 8rem;">
+        <!--      <h5 class="mt-0 mb-1">{{article['title']}}</h5>-->
+        <p class="card-title font-weight-bolder" style="height: 2.5rem;"><a
+                href="{{ context.URL.getter.article.view(article['id']) }}">{{ article['title'] }}</a></p>
+        <!--    <p class="card-subtitle  text-muted mb-2" style="">{{article['author']}}</p>-->
+        <p class="card-subtitle digest mb-1 text-muted"
+           style="height: 4rem; font-size: smaller">{{ article['digest'] }}</p>
+        <!--        <a class="float-right" href="{{article['url']}}">阅读全文</a>-->
+        <div class=" flex-row-reverse d-flex" style="height: 1.5rem;">
+
+            <div class="time">
+                <img src="{{ context.URL.getter.icon('svg/clock-orange.svg') }}" class="mr-1">
+                <span class="text-secondary" style="font-size: smaller;">{{ context.utils.to_date_str(article['created']) }}</span>
+            </div>
+            <div class="placeholder flex-grow-1"></div>
+        </div>
+    </div>
+
+</div>

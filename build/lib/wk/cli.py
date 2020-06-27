@@ -41,6 +41,9 @@ def main():
             if service=='fsapp':
                 from wk.applications import fsapp
                 fsapp.setup_default(*args,**kwargs)
+            elif service=='zspt':
+                from wk.applications import zspt
+                zspt.setup_default(*args,**kwargs)
             else:
                 print("Service %s is not valid."%(service))
     fire.Fire(Cli)

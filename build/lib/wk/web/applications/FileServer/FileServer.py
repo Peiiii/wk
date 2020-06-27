@@ -24,7 +24,7 @@ class FileServer(MyBlueprint):
             keywords=[]
             for word in search_keywords.split():
                 keywords+=list(jieba.cut(word))
-            print(keywords)
+            # print(keywords)
             result = self.file_engine.search(keywords)
             # print(result)
             result= [self.file_info(file) for file in result]

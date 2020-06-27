@@ -26,11 +26,13 @@ default_static_dir = SecureDirPath(pkg_info.pkg_dir) / 'data' / 'static'
 class TemplateLoader:
     def __init__(self, root):
         self.root = root
-
+        self.env=Environment(loader=FileSystemLoader(self.root))
+        self.frame_env=Environment(block_start_string='<%',block_end_string='%>',variable_start_string='<@',variable_end_string='@>',loader=FileSystemLoader(self.root))
+    def load_frame(self,fn):
+        return self.frame_env.get_template(fn).render()
     def load(self, fn):
-        path = self.root + '/' + fn
-        with open(path, 'r', encoding='utf-8') as f:
-            return Environment().from_string(f.read())
+        return self.env.get_template(fn)
+        # return self.frame_env.get_template(fn).render()
     def load_plain(self,fn):
         path = self.root + '/' + fn
         with open(path, 'r', encoding='utf-8') as f:
