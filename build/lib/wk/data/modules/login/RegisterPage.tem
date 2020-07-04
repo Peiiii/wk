@@ -1,0 +1,282 @@
+{% extends 'base.tem' %}
+{% block body %}
+    <script>
+        {% include 'login_register.js' %}
+    </script>
+    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="{{ context.qq_auth_config.appid }}"
+            charset="utf-8"></script>
+
+    <style>
+        body {
+            background-color: #EDEEEF;
+            width: 100vw;
+            margin: 0;
+        }
+
+        .form-wrapper .menu-bar button {
+        }
+    </style>
+    <script>
+        var {} = utils;
+        var {
+            checkResponse,
+        } = com;
+        var {
+            checkEmailFormat, checkPassword, checkPhoneNumber, sendEmailCode, sendSmsCode,
+        } = loginUtils;
+        const URL = {
+            registerByPhone: '{{ context["register_url"]+"?type=phone" }} ',
+            registerByEmail: '{{ context["register_url"]+"?type=email" }} ',
+        };
+        const checkFormPhone = function (el) {
+            let form = $(el);
+            let flag1 = checkPhoneNumber(form.find('.phone-input'));
+            let flag2 = checkPassword(form.find('.password-input'), form.find('.password-confirm-input'));
+            return flag1 && flag2;
+        };
+        const registerByPhone = function (el) {
+            el = $(el);
+            if (!checkFormPhone(el)) return;
+            let data = utils.gatherFormDataAsJSON(el);
+            utils.postJSON(URL.registerByPhone, data, (resp) => {
+                let res = checkResponse(resp);
+            })
+        };
+
+        const checkFormEmail = function (el) {
+            let form = $(el);
+            let flag1 = checkEmailFormat(form.find('.email-input'));
+            let flag2 = checkPassword(form.find('.password-input'), form.find('.password-confirm-input'));
+            return flag1 && flag2;
+        };
+        const registerByEmail = function (el) {
+            el = $(el);
+            if (!checkFormEmail(el)) return;
+            let data = utils.gatherFormDataAsJSON(el);
+            utils.postJSON(URL.registerByEmail, data, (resp) => {
+                let res = checkResponse(resp);
+            })
+        }
+
+    </script>
+    <script>
+        $(document).ready(() => {
+            utils.renderAll();
+
+            function initFormPhone(el) {
+                let form = $(el);
+                let btn_send_sms_code = form.find('.btn-send-sms-code');
+                let btn_submit = form.find('.btn-submit');
+                let callback = utils.getCodeSendTimerCallback(form.find('.code-send-timer'));
+                btn_send_sms_code.click(() => {
+                    sendSmsCode(form.find('.phone-input').val(), callback);
+                });
+                btn_submit.click(() => {
+                    registerByPhone(form);
+                })
+            }
+
+            initFormPhone('#form-phone');
+
+            function initFormEmail(el) {
+                let form = $(el);
+                let btn_send_sms_code = form.find('.btn-send-email-code');
+                let btn_submit = form.find('.btn-submit');
+                let callback = utils.getCodeSendTimerCallback(form.find('.code-send-timer'));
+                btn_send_sms_code.click(() => {
+                    sendEmailCode(form.find('.email-input').val(), callback);
+                });
+                btn_submit.click(() => {
+                    registerByEmail(form);
+                })
+            }
+            initFormEmail('#form-email');
+
+
+        })
+    </script>
+
+    <script>
+        QC.Login({
+                //btnId：插入按钮的节点id，必选
+                btnId: "real-qq-auth-btn",
+                //用户需要确认的scope授权项，可选，默认all
+                scope: "all",
+                //按钮尺寸，可用值[A_XL| A_L| A_M| A_S|  B_M| B_S| C_S]，可选，默认B_S
+                size: "B_S"
+            }, function (reqData, opts) {//登录成功
+                //根据返回数据，更换按钮显示状态方法
+                console.log(reqData);//查看返回数据
+                QC.Login.getMe(function (openId, accessToken) {//获取用户的openId
+                    console.log('QQOPENID:' + openId);
+                    thirdparty(null, null, reqData.figureurl_qq_2, reqData.nickname, 1, openId);
+                    QC.Login.signOut();//退出QQ登录调用事件
+                });
+            }
+        );
+        $(document).ready(() => {
+            {#$('.qq-auth-btn').click(() => {#}
+            {#    $('#real-qq-auth-btn').find('a').click();#}
+            {#})#}
+        })
+    </script>
+    {#    <div style="height: 200px;" class="bg-primary m-5">#}
+    <div class="container">
+
+        <div class="form-wrapper bg-white p-4 mt-5 mx-auto shadow" style="max-width: 30em;">
+            <nav>
+                <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                    <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-phone" role="tab"
+                       aria-controls="nav-home" aria-selected="true">手机注册</a>
+                    <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-email" role="tab"
+                       aria-controls="nav-profile" aria-selected="false">邮箱注册</a>
+                </div>
+            </nav>
+            <div class="tab-content my-3" id="nav-tabContent">
+                <div class="tab-pane fade show active" id="nav-phone" role="tabpanel">
+                    <form id="form-phone" action="?type=phone" method="post">
+                        {#                        <label>手机号码</label>#}
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-info" type="button">手机号码</button>
+                            </div>
+                            <input name="phone" type="text"  class="form-control phone-input" placeholder="手机号码">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-info" type="button">验证码</button>
+                            </div>
+                            <input name="validation-code" type="text" class="form-control validation-code-input" placeholder="验证码">
+                            <div class="input-group-append code-send-timer">
+                                <button class="btn btn-info btn-send-sms-code btn-before" type="button">发送短信验证码
+                                </button>
+                                <button class="btn btn-secondary d-none btn-after"  type="button">发送短信验证码
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-info" type="button">密码</button>
+                            </div>
+                            <input type="password" name="password" id="password-input-1"
+                                   class="form-control password-input" placeholder="密码">
+                            <div class="input-group-append">
+                                <button class="btn btn-info" data-toggle="show-password"
+                                        data-target="#password-input-1"
+                                        type="button"><i class="fa fa-eye toggle-show"></i><i
+                                        class="fa fa-eye-slash toggle-hide"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted mb-3">密码必须由 4-16位字母、数字、特殊符号线组成</small>
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-info" type="button">确认密码</button>
+                            </div>
+                            <input type="password" id="password-confirm-1" name="password-confirm"
+                                   class="form-control password-confirm-input" placeholder="确认密码">
+                            <div class="input-group-append">
+                                <button class="btn btn-info" data-toggle="show-password"
+                                        data-target="#password-confirm-1"
+                                        type="button"><i class="fa fa-eye toggle-show"></i><i
+                                        class="fa fa-eye-slash toggle-hide"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div type="button"
+                             class="text-center p-2 mt-2 bg-primary text-white btn-submit">注册
+                        </div>
+                    </form>
+                </div>
+                <div class="tab-pane fade" id="nav-email" role="tabpanel">
+                    <form id="form-email" action="?type=email" method="post">
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-info" type="button">电子邮箱</button>
+                            </div>
+                            <input type="text" name="email" class="form-control email-input"  placeholder="电子邮箱">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-info" type="button">验证码</button>
+                            </div>
+                            <input type="text" name="validation-code" class="form-control validation-code-input" placeholder="验证码">
+                            <div class="input-group-append code-send-timer" data-toggle="code-send-timer">
+                                <button class="btn btn-info btn-before btn-send-email-code"
+                                        type="button">发送邮箱验证码
+                                </button>
+                                <button class="btn btn-secondary d-none btn-after"
+                                        type="button">发送邮箱验证码
+                                </button>
+                            </div>
+                        </div>
+
+                        {#                        <label>密码</label>#}
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-info" type="button">密码</button>
+                            </div>
+                            <input type="password" name="password" id="password-input-2"
+                                   class="form-control password-input" placeholder="密码">
+                            <div class="input-group-append">
+                                <button class="btn btn-info" data-toggle="show-password"
+                                        data-target="#password-input-2"
+                                        type="button"><i class="fa fa-eye toggle-show"></i><i
+                                        class="fa fa-eye-slash toggle-hide"></i>
+                                </button>
+
+                            </div>
+                        </div>
+                        <small class="form-text text-muted mb-3">密码必须由 4-16位字母、数字、特殊符号线组成</small>
+
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-info" type="button">确认密码</button>
+                            </div>
+                            <input type="password" id="password-confirm-2" name="password-confirm"
+                                   class="form-control password-confirm-input" placeholder="确认密码">
+                            <div class="input-group-append">
+                                <button class="btn btn-info" data-toggle="show-password"
+                                        data-target="#password-confirm-2"
+                                        type="button"><i class="fa fa-eye toggle-show"></i><i
+                                        class="fa fa-eye-slash toggle-hide"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div type="button" id="email-form-submit-btn" onclick=""
+                             class="text-center p-2 mt-2 bg-primary text-white btn-submit">注册
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="w-100" style="font-size: smaller;">
+                <div class="d-flex" >
+                    <div class="qq-auth-btn">
+                        <a href="https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id={{ context.qq_auth_config.appid }}&redirect_uri={{ context.qq_auth_config.redirect_uri }}&state={{ context.key }}">
+                            <img src="{{ context['pkg_resource_url']+'/imgs/icon/qq.png' }}">
+                            <span class="text-primary pl-1">使用QQ登录|注册</span>
+                        </a>
+                    </div>
+{#                    <span id="real-qq-auth-btn" class="bg-primary p-5" style="display: none"></span>#}
+                </div>
+                <div class="my-3">
+                    <p>已有账号？<a href="{{ context['login_url'] }}">前往登录</a></p>
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+    </div>
+
+
+
+{% endblock %}

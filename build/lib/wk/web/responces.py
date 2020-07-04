@@ -15,8 +15,10 @@ class ActionResponse(JsonResponse):
         super().__init__(action=action,params=params,data=data,message=message,success=success,code=code)
 
 class ActionRedirect(ActionResponse):
-    def __init__(self,location,success=True,message=None):
-        params=dict(location=location)
+    def __init__(self,location=None,success=True,message=None,target=None):
+        target=location or target
+        assert target
+        params=dict(location=target)
         super().__init__(action='redirect',params=params,success=success,message=message)
 class ActionRefresh(ActionResponse):
     def __init__(self,success=True,message=None):

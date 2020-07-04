@@ -1,0 +1,18 @@
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/css/bootstrap.min.css">
+<script src="https://cdn.staticfile.org/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
+
+<link rel="stylesheet" href="https://ico.z01.com/zico.min.css">
+<script src="http://ico.z01.com/zico.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/AlertifyJS/1.13.1/css/alertify.min.css">
+<script src="https://cdn.staticfile.org/AlertifyJS/1.13.1/alertify.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.css">
+<script src="https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css">
+<script src="https://cdn.staticfile.org/font-awesome/5.13.0/js/all.min.js"></script>
+
+
+

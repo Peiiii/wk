@@ -12,6 +12,8 @@ pkg_static_path = data_path + '/static'
 pkg_document_path = pkg_data_path / 'documents'
 pkg_templates_dir = DirPath(data_path) / 'templates'
 pkg_js_dir = DirPath(data_path) / 'static' / 'js'
+pkg_modules_dir = DirPath(data_path)  / 'modules'
+
 default_templates = PointDict.from_dict({
     'welcome': pkg_resources.resource_filename('wk', 'data/templates/welcome.html'),
     'files': pkg_resources.resource_filename('wk', 'data/templates/files.html'),
@@ -67,6 +69,17 @@ def get_template_string_by_name(fn):
 def get_js_string_by_name(fn):
     if not fn.endswith('.js'): fn += '.js'
     return (pkg_js_dir / fn)()
+
+def get_module_environment(name):
+    module_path=pkg_modules_dir+'/'+name
+    _loader=ChoiceLoader([
+        FileSystemLoader(module_path),
+        PrefixLoader({
+            'pkg':FileSystemLoader(pkg_data_path)
+        })
+    ])
+    env=Environment(loader=_loader)
+    return env
 
 
 def get_env(path=None):
@@ -146,3 +159,59 @@ def get_book(path):
     os_url = config.get('os_url', '/os')
     book_path = config.get('book_path', './')
     return tem.render(os_url=os_url, book_path=book_path)
+class Urls:
+    class js:
+        bootstrap = 'https://cdn.staticfile.org/twitter-bootstrap/4.5.0/js/bootstrap.min.js'
+        jquery = 'https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js'
+        vue = 'https://cdn.staticfile.org/vue/2.6.11/vue.min.js'
+        react = 'https://cdn.staticfile.org/react/16.13.1/cjs/react.production.min.js'
+        popper = 'https://cdn.staticfile.org/popper.js/2.4.0/umd/popper.min.js'
+        marked = 'https://cdn.staticfile.org/marked/1.1.0/marked.min.js'
+        jwerty = 'https://cdn.staticfile.org/jwerty/0.3.2/jwerty.min.js'
+        font_awesome = 'https://cdn.staticfile.org/font-awesome/5.13.0/js/all.min.js'
+        jgrowl = 'https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.js'
+        alertify = 'https://cdn.staticfile.org/AlertifyJS/1.13.1/alertify.min.js'
+        zico = 'http://ico.z01.com/zico.min.js'
+        storejs = 'https://cdn.staticfile.org/store.js/2.0.12/store.everything.min.js'
+
+        class highlightjs:
+            highlightjs = 'https://cdn.staticfile.org/highlight.js/10.0.3/highlight.min.js'
+
+            class languages:
+                java = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/java.min.js'
+                javascript = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/javascript.min.js'
+                julia = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/julia.min.js'
+                kotlin = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/kotlin.min.js'
+                makefile = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/makefile.min.js'
+                markdown = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/markdown.min.js'
+                matlab = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/matlab.min.js'
+                php = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/php.min.js'
+                python = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/python.min.js'
+                c = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/c.min.js'
+                c_like = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/c-like.min.js'
+                cpp = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/cpp.min.js'
+                css = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/css.min.js'
+                http = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/http.min.js'
+                go = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/go.min.js'
+                rust = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/rust.min.js'
+                shell = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/shell.min.js'
+                ruby = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/ruby.min.js'
+                sql = 'https://cdn.staticfile.org/highlight.js/10.0.3/languages/sql.min.js'
+
+    class css:
+        bootstrap = 'https://cdn.staticfile.org/twitter-bootstrap/4.5.0/css/bootstrap.min.css'
+        font_awesome = 'https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css'
+        jgrowl = 'https://cdn.staticfile.org/jquery-jgrowl/1.4.7/jquery.jgrowl.min.css'
+        alertify = 'https://cdn.staticfile.org/AlertifyJS/1.13.1/css/alertify.min.css'
+        zico = 'https://ico.z01.com/zico.min.css'
+
+        class highlightjs:
+            default = 'https://cdn.staticfile.org/highlight.js/10.0.3/styles/default.min.css'
+            github = 'https://cdn.staticfile.org/highlight.js/10.0.3/styles/github.min.css'
+            rainbow = 'https://cdn.staticfile.org/highlight.js/10.0.3/styles/rainbow.min.css'
+            ocean = 'https://cdn.staticfile.org/highlight.js/10.0.3/styles/ocean.min.css'
+            tomorrow = 'https://cdn.staticfile.org/highlight.js/10.0.3/styles/tomorrow.min.css'
+
+            class atom:
+                dark = 'https://cdn.staticfile.org/highlight.js/10.0.3/styles/atom-one-dark.min.css'
+                light = 'https://cdn.staticfile.org/highlight.js/10.0.3/styles/atom-one-light.min.css'

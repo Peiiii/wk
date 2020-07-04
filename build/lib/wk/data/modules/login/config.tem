@@ -1,0 +1,8 @@
+<script>
+    const CONFIG = {
+        URL: {
+            sendSmsCode: '{{ context.send_sms_url }}',
+            sendEmailCode: '{{ context.send_email_url }}',
+        }
+    }
+</script>

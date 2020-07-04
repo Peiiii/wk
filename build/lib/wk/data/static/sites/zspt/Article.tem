@@ -4,10 +4,10 @@
     })
 </script>
 <% include 'css/articleCss.tem' %>
-<div class="article mx-auto shadow-lg my-5 p-4" style="max-width: 40em;">
+<div class="article mx-auto shadow-lg my-5 py-4 px-3" style="max-width: 40em;">
     <div class="article-title"><h1 class="mx-auto pt-4 ">{{ article['title'] }}</h1></div>
     <hr>
     <br>
-    <div class="article-body">{{ article['html'] }}</div>
+    <div class="article-body text-justify">{{ article['html'] }}</div>
 
 </div>

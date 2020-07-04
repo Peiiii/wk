@@ -1,0 +1,31 @@
+{% extends 'base.tem' %}
+{% block body %}
+    <div class="mx-auto mt-5" style="width: 30rem;">
+        {% if context.message %}
+            <div class="msg-show ">
+                {{ context.message }}
+            </div>
+        {% endif %}
+        {% if context.redirect %}
+            <div class="redirect-url">
+                {% for text,url in context.redirect.items() %}
+                    <a class="mx-1" href="{{ url }}">{{ text }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if context.links %}
+            <div class="links">
+                {% for text,url in context.links.items() %}
+                    <a class="mx-1" href="{{ url }}">{{ text }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if context.back %}
+            <p>
+                {% for text,url in context.back.items() %}
+                    <a href="{{ url }}">{{ text }}</a>
+                {% endfor %}
+            </p>
+        {% endif %}
+    </div>
+{% endblock %}

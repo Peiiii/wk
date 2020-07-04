@@ -464,6 +464,94 @@ class PointDict(dict):
                           cell_border=cell_border,fillchar=fillchar,delimiter=delimiter)
     def pprint1(self):
         self.print1(step=5, space_around_delimiter=0, fillchar='`', cell_border='|', delimiter=':')
+class ArgumentSpace(PointDict):
+    class Empty:
+        pass
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.seta(__parent__={})
+
+    @classmethod
+    def make(cls, *args, **kwargs):
+        for arg in args:
+            assert isinstance(arg, dict)
+        args = list(args)
+        args.append(kwargs)
+
+        def my_update(dic1, *dics):
+            for dic in dics:
+                for k, v2 in dic.items():
+                    v1 = dic1.get(k, None)
+                    v = v2 if v2 is not None else v1
+                    dic1[k] = v
+            return dic1
+
+        new = my_update(*args)
+        return cls(**new)
+
+    def get_parent(self):
+        return self.geta('__parent__')
+
+    def detach_parent(self):
+        parent = self.geta('__parent__')
+        self.seta(__parent__={})
+        return parent
+
+    def set_parent(self, parent):
+        assert isinstance(parent, ArgumentSpace)
+        self.seta(__parent__=parent)
+
+    def get_argument(self, arg, default=Empty):
+        return self.get(arg, default)
+
+    def get(self, arg, default=Empty):
+        class Empty:
+            pass
+
+        v = PointDict.get(self, arg, Empty)
+        if v is Empty or v is None:
+            if isinstance(self.geta('__parent__'), ArgumentSpace):
+                v = self.geta('__parent__').get_argument(arg, Empty)
+                if v is Empty:
+                    if default is ArgumentSpace.Empty:
+                        raise Exception('Cannot get argument %s' % (arg))
+                    return default
+        return v
+
+    def retrieve_arguments(self, args, strict=False):
+        class Empty:
+            pass
+
+        arg_list = []
+        params = []
+
+        def handle_if_empty(arg, name=''):
+            if arg is not Empty:
+                return arg
+            if strict:
+                raise Exception('Cannot retrieve argument %s.' % (name))
+            return None
+
+        def check_arg_name(txt):
+            return True
+
+        if isinstance(args, str):
+            if not ',' in args:
+                v = self.get_argument(args, Empty)
+                return handle_if_empty(v, args)
+            else:
+                args = args.strip().strip(',').strip().split(',')
+                for arg in args:
+                    arg = arg.strip()
+                    check_arg_name(arg)
+                    arg_list.append(arg)
+        else:
+            assert isinstance(args, (list, tuple, set))
+            arg_list = args
+        for arg in arg_list:
+            params.append(handle_if_empty(self.get_argument(arg, Empty), arg))
+        return params
 
 class FSItemInfo(PointDict):
     def pretty_format(self):

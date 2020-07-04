@@ -212,7 +212,7 @@
 
         <!-- Create the editor container -->
         <div class="bg-white article">
-            <div id="quill-editor" class="bg-white article-body">
+            <div id="quill-editor" class="bg-white article-body text-justify">
                 {{ article['html'] }}
             </div>
         </div>
