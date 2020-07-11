@@ -1,19 +1,28 @@
 from wk import web
+import wk
+from wk.web import join_path
 from wk.web.modules.login import LoginManager
 from wk.web.modules.apis.aliyun import AliyunSmsService
+from wk.web.modules.apis.qq import get_openid, get_user_info
 from wk.web.modules.email import EmailSender
+from wk import PointDict, Pather
+from flask_restful import Api, Resource
+from flask_sqlalchemy import SQLAlchemy
+import requests
+import json
 from . import data_access_layer as DAL
 from .presentation_layer import PageLoader
-from .config import CONFIG, create_sitemap
+from . import business_logic_layer as BLL
+from .config import create_sitemap
 
 def log(*args,**kwargs):
     print('Log{sep}Log:\t'.format(sep='*'*20),*args,**kwargs)
 class ZSPT(web.Application):
     url_prefix = '/'
 
-    def __init__(self, import_name, config={}, *args, **kwargs):
+    def __init__(self, import_name,CONFIG, config={}, *args, **kwargs):
         super().__init__(import_name, *args, **kwargs)
-        Sitemap = create_sitemap(self.url_prefix)
+        Sitemap = create_sitemap(self.url_prefix,CONFIG.SITE_DATA_DIR_NAME)
 
         class Services:
             email_sender = EmailSender(CONFIG.QQEMAIL.sender, CONFIG.QQEMAIL.auth_code)

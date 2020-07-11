@@ -214,11 +214,29 @@ class Article(sql.Model, sql.PrettyPrint):
     content = Column(Text, nullable=False)
     content_type = Column(Enum(ArticleContentType), nullable=False)
     content_text = Column(Text)
+    content_html = Column(Text)
+    content_markdown = Column(Text)
 
     introduction = sql.Column(sql.String(500))
     created_at = Column(Float, default=time.time, nullable=False)
     updated_at = Column(Float)
     published_at = Column(Float)
+class Draft(sql.Model, sql.PrettyPrint):
+    __tablename__ = 'drafts'
+    id = Column(String(80), primary_key=True, default=lambda: uuid.uuid4().hex, nullable=False)
+    author_id = Column(String(80), ForeignKey('users.id', ondelete='SET NULL'))
+    title = Column(Text, nullable=False)
+
+    summary = Column(Text, nullable=False)
+    content = Column(Text, nullable=False)
+    content_type = Column(Enum(ArticleContentType), nullable=False)
+    content_text = Column(Text)
+    content_html = Column(Text)
+    content_markdown = Column(Text)
+
+    introduction = sql.Column(sql.String(500))
+    created_at = Column(Float, default=time.time, nullable=False)
+    updated_at = Column(Float)
 
 
 class Document(sql.Model, sql.PrettyPrint):
