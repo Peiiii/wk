@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from wk.web.resources import get_template_by_name, default_static_dir
 from wk.web.utils import join_path, rename_func
 import uuid, os, logging, inspect, copy
-
+from threading import Thread
 
 class CONST:
     DEFAULT_APP_CONFIG = {
@@ -13,7 +13,7 @@ class CONST:
 
 class Application(Flask):
     def __init__(self, import_name=None, enable_CORS=True, host_pkg_resource=True, config={}, name=None,
-                 url_prefix=None, *args, **kwargs):
+                 url_prefix=None,run_kwargs={}, *args, **kwargs):
         super().__init__(import_name=import_name, *args, **kwargs)
         if enable_CORS:
             try:
@@ -23,6 +23,7 @@ class Application(Flask):
                 logging.warning("CORS is enabled but Flask_cors is not found, install it!")
         self.sitemap = {}
         self.static_map = {}
+        self.run_kwargs=run_kwargs
         default_config ={}
         default_config.update(**CONST.DEFAULT_APP_CONFIG)
         default_config.update(**config)
@@ -39,13 +40,13 @@ class Application(Flask):
         self.host = host
         self.port = port
         self.debug = debug
-        Flask.run(self, host, port, debug, load_dotenv)
+        Flask.run(self, host, port, debug, load_dotenv,**self.run_kwargs,**options)
 
     def get_sitemap(self):
         return self.sitemap
 
-    def host_pkg_resource(self):
-        self.add_static(url_prefix="/pkg-resource", static_dir=default_static_dir)
+    def host_pkg_resource(self,url_prefix='/pkg-resource'):
+        self.add_static(url_prefix=url_prefix, static_dir=default_static_dir)
 
     def add_static(self, url_prefix='/files', static_dir='./'):
         self.config_statics({url_prefix: static_dir})
@@ -77,7 +78,28 @@ class Application(Flask):
                 fns = os.listdir(abs_path)
                 fps = [join_path(url_prefix, req_path, f) for f in fns]
                 return template.render(files=zip(fps, fns))
+class HttpsApplication(Application):
+    def run(self, host="127.0.0.1", port=443, debug=True, load_dotenv=True,ssl_context='adhoc', build_no_ssl_site=True,no_ssl_port=80, **options):
+        if build_no_ssl_site:
+            app=Flask(import_name=self.import_name)
+            def to_https(url=''):
+                pre = 'https://'
+                url = url[7:]
+                domain, loc = url.split('/', maxsplit=1)
+                domain = domain + ':443'
+                return join_path(pre + domain, loc)
+            @app.before_request
+            def before_request():
+                print(request.url)
 
+                if request.url.startswith('http://'):
+                    url = to_https(request.url)
+                    return redirect(url, code=301)
+            def func():
+                app.run(host=host,port=no_ssl_port)
+            t=Thread(target=func)
+            t.start()
+        Application.run(self,host="127.0.0.1", port=port, debug=True, load_dotenv=True, ssl_context=ssl_context, **options)
 
 class PredfinedKeysMetaClass(type):
     def __new__(cls, name, bases, attrs):

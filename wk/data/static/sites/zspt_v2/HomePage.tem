@@ -1,0 +1,16 @@
+{% extends 'base.tem' %}
+{% block body %}
+    {% include "Navigator.tem" %}
+    <div style="max-width:30em;" class="m-auto p-3 pt-5  max-vh-30">
+        <form action="/" method="get">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="{{ placeholder  or '输入关键词，如“数学立体几何”' }}"
+                       name="search-keywords"
+                       value="{{ input_fill or '' }}">
+                <div class="input-group-append">
+                    <button class="btn btn-success" type="submit" id="basic-addon2">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

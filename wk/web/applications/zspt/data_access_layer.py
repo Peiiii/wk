@@ -2,8 +2,8 @@ import uuid, time, enum, contextlib
 from sqlalchemy import Column, Integer, Text, String, DateTime, Sequence, Date, Boolean, Float, ForeignKey, Enum, \
     PickleType
 
-def gen_random_id():
-    return uuid.uuid4().hex
+from wk import generate_random_id, generate_hash
+
 
 class IdentityType(enum.Enum):
     user_name = 1
@@ -28,6 +28,9 @@ class SiteContentType(enum.Enum):
     video = 5
     question = 6
     answer = 7
+    knowledge_card = 8
+    mind_map = 9
+    note = 10
 
 
 class sql:
@@ -38,6 +41,7 @@ class sql:
     Model = declarative_base()
 
     class PrettyPrint:
+
         def __repr__(self):
             from sqlalchemy import inspect
             mapper = inspect(self.__class__)
@@ -54,10 +58,18 @@ class sql:
             RealSession = sql.scoped_session(sql.sessionmaker(bind=self.engine))
 
             class Session:
-                def __init__(self, autocommit=True, autoclose=True):
+                def __init__(self, autocommit=True, autoclose=True, autoexpunge=False, autofill=False):
                     self.autocommit = autocommit
                     self.autoclose = autoclose
+                    self.autoexpunge = autoexpunge
+                    self.autofill = autofill
                     self.real_sess = RealSession()
+
+                def expunge(self, x):
+                    return self.real_sess.expunge(x)
+
+                def expunge_all(self):
+                    return self.real_sess.expunge_all()
 
                 def query(self, model):
                     return self.real_sess.query(model)
@@ -69,6 +81,9 @@ class sql:
                     return self.real_sess.close()
 
                 def add(self, obj):
+                    if self.autofill:
+                        if hasattr(obj, 'auto_fill'):
+                            obj.auto_fill()
                     return self.real_sess.add(obj)
 
                 def commit(self):
@@ -79,12 +94,15 @@ class sql:
 
                 def __exit__(self, exc_type, exc_val, exc_tb):
                     try:
+
                         if self.autocommit:
                             self.commit()
                     except:
                         self.rollback()
                         raise
                     finally:
+                        if self.autoexpunge:
+                            self.expunge_all()
                         if self.autoclose:
                             self.close()
 
@@ -92,22 +110,12 @@ class sql:
             self.PrettyPrint = sql.PrettyPrint
             self.Model = sql.Model
 
-        def get_session(self,autocommit=True, autoclose=True):
-            sess = self.Session(autoclose=autoclose,autocommit=autocommit)
+        def get_session(self, autocommit=True, autoclose=True, autoexpunge=False, autofill=False):
+            sess = self.Session(autoclose=autoclose, autocommit=autocommit, autoexpunge=autoexpunge, autofill=autofill)
             return sess
 
         def create_all(self):
             return self.Model.metadata.create_all(self.engine)
-
-
-class User(sql.Model, sql.PrettyPrint):
-    __tablename__ = 'users'
-    id = sql.Column(sql.String(80), primary_key=True, default=lambda: uuid.uuid4().hex, nullable=False)
-    username = sql.Column(sql.String(80), unique=True, default=lambda: '用户' + uuid.uuid4().hex)
-    avatar = sql.Column(sql.String(80))
-    gender = sql.Column(sql.String(10))
-    introduction = sql.Column(sql.String(500))
-    registered_at = sql.Column(sql.Float, default=lambda: time.time())
 
 
 class StateStore(sql.Model, sql.PrettyPrint):
@@ -127,12 +135,19 @@ class StateManger:
         assert Model is StateStore
         self.engine = engine
         self.Model = Model
-    def produce_key(self,timedelta=30*60):
-        uid=uuid.uuid4().hex
-        self.push('key',uid,timedelta=timedelta)
+
+    def produce_key(self, timedelta=30 * 60):
+        uid = uuid.uuid4().hex
+        self.push('key', uid, timedelta=timedelta)
         return uid
-    def check_key(self,key):
-        self.get('key',key)
+
+    def delete(self, id):
+        with self.engine.get_session() as sess:
+            return sess.query(self.Model).filter(self.Model.id == id).delete()
+
+    def check_key(self, key):
+        self.get('key', key)
+
     def push(self, *args, timedelta=5 * 60, ):
         assert len(args) <= 5
         t = time.time()
@@ -142,7 +157,6 @@ class StateManger:
         state = self.Model(**dic, expire_time=t + timedelta)
         with self.engine.get_session() as sess:
             sess.add(state)
-
 
     def flush(self):
         '''这个函数需要被定期地调用，但是目前还没有'''
@@ -159,19 +173,32 @@ class StateManger:
         keys = keys[:len(args)]
         dic = dict(zip(keys, args))
         dic = [k == v for k, v in dic.items()]
-        sess = self.engine.get_session()
-        # print(dic)
-        # res=sess.query(self.Model).filter(**dic).all()
-        res = sess.query(self.Model).filter(*dic).filter(self.Model.expire_time > t).all()
-        # .filter(self.Model.expire_time > t)
-        sess.close()
-        return res
+        with self.engine.get_session(autocommit=False) as sess:
+            res = sess.query(self.Model).filter(*dic).filter(self.Model.expire_time > t).all()
+            return res
+
+
+class User(sql.Model, sql.PrettyPrint):
+    __tablename__ = 'users'
+    id = sql.Column(sql.String(80), primary_key=True, default=generate_random_id, nullable=False)
+    username = sql.Column(sql.String(80), unique=True, default=lambda: '用户' + uuid.uuid4().hex)
+    avatar = sql.Column(sql.String(80))
+    gender = sql.Column(sql.String(10))
+    introduction = sql.Column(sql.String(500))
+    registered_at = sql.Column(sql.Float, default=lambda: time.time())
+
+    def auto_fill(self):
+        if not self.id:
+            self.id = generate_random_id()
+        if not self.avatar:
+            self.avatar = 'http://www.gravatar.com/avatar/%s?s=256&d=retro' % (generate_hash(self.id))
+        return self
 
 
 class UserAuth(sql.Model, sql.PrettyPrint):
     __tablename__ = 'user_auths'
     id = Column(String(80), primary_key=True, default=lambda: uuid.uuid4().hex, nullable=False)
-    user_id = Column(String(80), ForeignKey('users.id'))
+    user_id = Column(String(80), ForeignKey('users.id'), nullable=False)
     identity_type = Column(Enum(IdentityType))
     identifier = Column(String(80), unique=True)
     credential = Column(String(80))
@@ -182,10 +209,13 @@ class Article(sql.Model, sql.PrettyPrint):
     id = Column(String(80), primary_key=True, default=lambda: uuid.uuid4().hex, nullable=False)
     author_id = Column(String(80), ForeignKey('users.id', ondelete='SET NULL'))
     title = Column(Text, nullable=False)
+
     summary = Column(Text, nullable=False)
     content = Column(Text, nullable=False)
     content_type = Column(Enum(ArticleContentType), nullable=False)
     content_text = Column(Text)
+
+    introduction = sql.Column(sql.String(500))
     created_at = Column(Float, default=time.time, nullable=False)
     updated_at = Column(Float)
     published_at = Column(Float)
@@ -194,10 +224,13 @@ class Article(sql.Model, sql.PrettyPrint):
 class Document(sql.Model, sql.PrettyPrint):
     __tablename__ = 'documents'
     id = Column(String(80), primary_key=True, default=lambda: uuid.uuid4().hex, nullable=False)
+    author_id = Column(String(80), ForeignKey('users.id', ondelete='SET NULL'))
+
     filename = Column(String(80))
+
     category = Column(String(200))
     introduction = Column(String(500))
-    author_id = Column(String(80), ForeignKey('users.id', ondelete='SET NULL'))
+
     uploaded_at = Column(Float, default=time.time)
     mime_type = Column(String(80))
 
@@ -233,6 +266,42 @@ class Video(sql.Model, sql.PrettyPrint):
     author_id = Column(String(80), ForeignKey('users.id', ondelete='SET NULL'))
     introduction = Column(String(500))
     filename = Column(String(80))
+    created_at = Column(Float, default=time.time, nullable=False)
+    updated_at = Column(Float)
+    published_at = Column(Float)
+
+
+class KnowledgeCard(sql.Model, sql.PrettyPrint):
+    __tablename__ = 'knowledge_cards'
+    id = Column(String(80), primary_key=True, default=lambda: uuid.uuid4().hex, nullable=False)
+    title = Column(String(80), nullable=False)
+    author_id = Column(String(80), ForeignKey('users.id', ondelete='SET NULL'))
+    introduction = Column(String(500))
+    content = Column(Text)
+    created_at = Column(Float, default=time.time, nullable=False)
+    updated_at = Column(Float)
+    published_at = Column(Float)
+
+
+class MindMap(sql.Model, sql.PrettyPrint):
+    __tablename__ = 'mind_maps'
+    id = Column(String(80), primary_key=True, default=lambda: uuid.uuid4().hex, nullable=False)
+    title = Column(String(80), nullable=False)
+    author_id = Column(String(80), ForeignKey('users.id', ondelete='SET NULL'))
+    introduction = Column(String(500))
+    content = Column(Text)
+    created_at = Column(Float, default=time.time, nullable=False)
+    updated_at = Column(Float)
+    published_at = Column(Float)
+
+
+class Note(sql.Model, sql.PrettyPrint):
+    __tablename__ = 'notes'
+    id = Column(String(80), primary_key=True, default=lambda: uuid.uuid4().hex, nullable=False)
+    title = Column(String(80), nullable=False)
+    author_id = Column(String(80), ForeignKey('users.id', ondelete='SET NULL'))
+    introduction = Column(String(500))
+    content = Column(Text)
     created_at = Column(Float, default=time.time, nullable=False)
     updated_at = Column(Float)
     published_at = Column(Float)
