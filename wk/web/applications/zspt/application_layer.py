@@ -57,6 +57,7 @@ class ZSPT(web.Application):
                     Sitemap=Sitemap,
                     title='知识树',
                     user=None,
+                    article=None,
                 )
 
             @classmethod
@@ -78,3 +79,61 @@ class ZSPT(web.Application):
         def do_user_home(id,user):
             context=Context.new()
             return Pages.user_home_page(context)
+        @self.route(Sitemap.Contents.Articles.new)
+        @self.login_manager.login_required(get_user=True, name='user')
+        def do_article_new(user):
+            context = Context.new()
+            return Pages.article_write_page(context)
+
+        # Apis
+
+        def add_resource_user_assets(model,url):
+            def update_attrs(obj,attrs):
+                for k,v in attrs:
+                    setattr(obj,k,v)
+                return obj
+            # assert isinstance(model,DAL.sql.Model)
+            @app.route(url,methods=['post'])
+            @app.login_manager.login_required(get_user=True, )
+            @web.parse_json
+            def post(user, data):
+                instance = model(author_id=user.id, **data)
+                with app.db.get_session() as sess:
+                    sess.add(instance)
+                return web.StatusSuccessResponse(message='添加成功')
+            @app.route(join_path(url,'<string:resource_id>'),methods=['put'])
+            @app.login_manager.login_required(get_user=True, )
+            @web.parse_json
+            def put(user,resource_id,data):
+                with app.db.get_session() as sess:
+                    instances = sess.query(DAL.Draft).filter(model.id == resource_id).all()
+                    if not instances: return web.StatusErrorResponse(message='资源不存在')
+                    instance = instances[0]
+                    if not user.id == instance.author_id:
+                        return web.StatusErrorResponse(message='没有权限')
+                    update_attrs(instance,data)
+                    return web.StatusSuccessResponse(message='修改成功')
+            @app.route(join_path(url,'<string:resource_id>'),methods=['get'])
+            @app.login_manager.login_required(get_user=True, name='user')
+            def get(user,resource_id):
+                with app.db.get_session() as sess:
+                    instances = sess.query(model).filter(model.id == resource_id).all()
+                    if not instances: return web.StatusErrorResponse(message='资源不存在')
+                    instance = instances[0]
+                    if not user.id == instance.author_id:
+                        return web.StatusErrorResponse(message='没有权限')
+                    return web.StatusSuccessResponse(data=instance)
+
+            @app.route(join_path(url, '<string:resource_id>'), methods=['delete'])
+            @app.login_manager.login_required(get_user=True, name='user')
+            def delete(user, resource_id):
+                with app.db.get_session() as sess:
+                    instances = sess.query(model).filter(model.id == resource_id).all()
+                    if not instances: return web.StatusErrorResponse(message='资源不存在')
+                    instance = instances[0]
+                    if not user.id == instance.author_id:
+                        return web.StatusErrorResponse(message='没有权限')
+                    sess.query(model).filter(model.id == resource_id).delete()
+                    return web.StatusSuccessResponse(message='删除成功')
+
+        add_resource_user_assets(DAL.Draft,Sitemap.Api.Drafts())

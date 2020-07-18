@@ -26,7 +26,7 @@ class ActionRefresh(ActionResponse):
 class StatusResponse(JsonResponse):
     def __init__(self,success=True,message="success",code=0,data=None,*args,**kwargs):
         super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)
-class StatusSuccessResponce(StatusResponse):
+class StatusSuccessResponse(StatusResponse):
     def __init__(self,success=True,message="success",code=0,data=None,*args,**kwargs):
         super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)
 class StatusErrorResponse(StatusResponse):

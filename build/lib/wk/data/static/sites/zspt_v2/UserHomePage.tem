@@ -1,0 +1,5 @@
+{% extends 'base.tem' %}
+{% block body %}
+    {% include "Navigator.tem" %}
+     "这是你的主页"
+{% endblock %}

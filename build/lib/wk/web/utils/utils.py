@@ -89,13 +89,13 @@ def get_arg_dict(func):
 
 def parse_from(*refers):
     def decorator(f):
-        # fargs = inspect.getfullargspec(f).args
         arg_dict=get_arg_dict(f)
         fargs=list(arg_dict.keys())
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             dic = {}
-            for ref in refers:
+            data_resource=[*refers,kwargs]
+            for ref in data_resource:
                 d = ref() if callable(ref) else dict(ref)
                 d = d or {}
                 if d: dic.update(d)

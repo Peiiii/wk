@@ -1,0 +1,54 @@
+{% set URL=context.URL %}
+
+<style>
+    .navigator .active {
+        background-color: #005cbf;
+    }
+
+    .navigator .nav-item:hover {
+        background-color: #005cbf;
+    }
+</style>
+<link rel="icon" href="{{ URL.favicon }}" type="image/x-icon">
+<nav class="navbar navbar-expand-lg navbar-expand-md navbar-expand-xl  navbar-dark bg-dark" style="">
+    <a class="navbar-brand" href="/">知识树</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item {{ 'active' if active==0 else '' }}">
+                <a class="nav-link" href="{{ URL.Home() }}">首页<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item {{ 'active' if active==1 else '' }}">
+                <a class="nav-link" href="{{ URL.Contents.Documents() }}">文件库</a>
+            </li>
+            <li class="nav-item {{ 'active' if active==2 else '' }}">
+                <a class="nav-link" href="{{ URL.Contents.Articles.new}}">写文章</a>
+            </li>
+            <li class="nav-item {{ 'active' if active==3 else '' }}">
+                <a class="nav-link" href="{{ URL.Contents.Documents.new }}">上传</a>
+            </li>
+        </ul>
+        {% if context and  context.login_user %}
+            {% set user=context.login_user %}
+            <a href="{{ URL.User.logout }}" class="mx-2">退出</a>
+            <a href="{{ URL.User(user['id']) }}" target="_blank"><img class="rounded-circle mr-2 ml-2"
+                                                                      src="{{ user['avatar'] }}"
+                                                                      style="height: 40px;width: 40px;"></a>
+
+        {% endif %}
+        {% if not context or not context.login_user %}
+            <a href="{{ URL.User.register }}" class="mx-2">注册</a>
+            <a href="{{ URL.User.login }}" class="ml-2 mr-4">登录</a>
+        {% endif %}
+        <form class="form-inline my-2 my-lg-0" action="/" method="get">
+            <input class="form-control mr-sm-2" name="search-keywords" type="search" placeholder="Search"
+                   aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </div>
+</nav>
+

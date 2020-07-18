@@ -13,6 +13,8 @@ pkg_document_path = pkg_data_path / 'documents'
 pkg_templates_dir = DirPath(data_path) / 'templates'
 pkg_js_dir = DirPath(data_path) / 'static' / 'js'
 pkg_modules_dir = DirPath(data_path)  / 'modules'
+pkg_parts_dir = DirPath(data_path)  / 'parts'
+pkg_sites_dir = DirPath(data_path)  / 'static'/'sites'
 
 default_templates = PointDict.from_dict({
     'welcome': pkg_resources.resource_filename('wk', 'data/templates/welcome.html'),
@@ -76,6 +78,20 @@ def get_module_environment(name):
         FileSystemLoader(module_path),
         PrefixLoader({
             'pkg':FileSystemLoader(pkg_data_path)
+        })
+    ])
+    env=Environment(loader=_loader)
+    return env
+
+
+def get_site_environment(name):
+    site_path=pkg_sites_dir+'/'+name
+    _loader=ChoiceLoader([
+        FileSystemLoader(site_path),
+        PrefixLoader({
+            'pkg':FileSystemLoader(pkg_data_path),
+            'modules':FileSystemLoader(pkg_modules_dir),
+            'parts':FileSystemLoader(pkg_parts_dir),
         })
     ])
     env=Environment(loader=_loader)

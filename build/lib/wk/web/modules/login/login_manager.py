@@ -6,6 +6,7 @@ from wk.web.modules.apis.qq import get_user_info, get_openid
 from . import utils
 import json, random, uuid, functools, inspect
 import requests
+import logging
 
 module_env = web.get_module_environment('login')
 
@@ -74,7 +75,11 @@ class LoginManager:
                 super().__init__(**dic)
 
         self.Context = Context
-
+    def log(self,*args,**kwargs):
+        string='LoggingManager'+'*'*20+'log:\t'
+        for arg in args:
+            string+=str(arg) if hasattr(arg,'__str__') else repr(arg)
+        logging.warning(string,*kwargs)
     def init(self):
         @self.app.route(self.auth_qq_callback_url + '/token', methods=['get'])
         def do_auth_callback_qq_token():
@@ -115,6 +120,24 @@ class LoginManager:
             token = response.text
             requests.session().close()  # 关闭请求
             return web.redirect(self.auth_qq_callback_url + '/token?' + token)
+        @self.app.route(self.logout_url,methods=['get'])
+        def do_logout():
+            user=self.get_login_user()
+            login_key = self.get_login_key()
+            if not (user and login_key):
+                return self.message_page('您尚未登录,无需登出!')
+            state=self.state_manager.get('login_key',login_key,user.id)
+            if not state:
+                return self.message_page('您尚未登录,无需登出!')
+            state=state[0]
+            res=self.state_manager.delete(state.id)
+            self.log('delete return:', res)
+            if res:
+                return self.message_page('您已成功登出!')
+            else:
+                return self.message_page('出错啦！')
+
+
 
         @self.app.route(web.join_path(self.login_url), methods=['get'])
         def do_login_get():
@@ -135,6 +158,7 @@ class LoginManager:
                         return web.StatusErrorResponse(message='手机号码或密码错误')
                     user_auth = exist[0]
                     login_key = gen_random_key()
+                    self.log('login',login_key,user_auth)
                     self.state_manager.push('login_key', login_key, user_auth.user_id, timedelta=TIME.MONTH)
                     session['login_key'] = login_key
                     return web.ActionRedirect(redirect_url)
@@ -188,17 +212,19 @@ class LoginManager:
                         return web.StatusErrorResponse(message='手机号码错误或验证码错误')
                     if not self.state_manager.get(phone, validation_code):
                         return web.StatusErrorResponse(message="发生错误，可能验证码已超时")
-                    user = self.User()
+                    user_id = generate_random_id()
+                    user = self.User(id=user_id)
+                    self.log('user:',user)
                     user_auth = self.UserAuth(user_id=user.id, identity_type='phone', identifier=phone,
                                               credential=password)
-                    with self.db.get_session() as sess:
+                    with self.db.get_session(autofill=True) as sess:
                         exist = sess.query(self.UserAuth).filter(self.UserAuth.identity_type == 'phone',
                                                                  self.UserAuth.identifier == phone).count()
                         if exist:
                             return web.StatusErrorResponse(message='该手机号码已被注册')
                         sess.add(user)
                         sess.add(user_auth)
-                        sess.commit()
+                        self.log('regitster:',user,user_auth)
                         return web.ActionRedirect(location=self.login_url)
 
 
@@ -225,7 +251,7 @@ class LoginManager:
         @web.parse_json
         def do_send_sms(target):
             if not utils.checkPhone(target):
-                print('电话号码错误:%s' % target)
+                self.log('电话号码错误:%s' % target)
                 if self.app.debug:
                     raise
                 return web.StatusErrorResponse(message='不是正确的电话号码')
@@ -273,11 +299,19 @@ class LoginManager:
 
     def generate_hash(self, s):
         return wk.generate_hash(self.app.secret_key + s)
+    def same_user_required(self,func):
+        @functools.wraps(func)
+        def wrapper(id,user,*args,**kwargs):
+            assert  user.id and id
+            if not user.id==id:
+                return self.no_permission_page(message='您没有权限访问该项内容')
+            return func(id=id,user=user,*args,**kwargs)
+        return wrapper
 
     def login_required(self, get_user=False, name='user'):
         if inspect.isfunction(get_user):
+            '''when use @login_manager.login_required'''
             func = get_user
-
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
                 if not self.is_login():
@@ -307,20 +341,24 @@ class LoginManager:
             return wrapper
 
         return decorator
-
-    def get_login_user(self):
+    def get_login_key(self):
         login_key = retrieve_from_session('login_key')
+        return login_key
+    def get_login_user(self):
+        login_key=self.get_login_key()
         if not login_key:
             return False
         user = self.state_manager.get('login_key', login_key)
         if not user:
             return False
-        user_id = user['c3']
-        with self.db.get_session() as sess:
+        user_id = user[0].c3
+        with self.db.get_session(autoexpunge=True) as sess:
             exist = sess.query(self.User).filter(self.User.id == user_id).all()
             if not exist:
                 print('user_id %s exists in state_store but not found in users' % (user_id))
                 return False
+            self.log('LoginUser:',exist)
+            sess.expunge(exist[0])
             return exist[0]
 
     def is_login(self):
@@ -336,6 +374,8 @@ class LoginManager:
         return self.message_page(message=message, redirect=redirect)
 
     def login_error_page(self, message="登录失败", redirect=None):
+        return self.message_page(message=message, redirect=redirect)
+    def no_permission_page(self, message="没有权限", redirect=None):
         return self.message_page(message=message, redirect=redirect)
 
     def message_page(self, message, redirect=None, links=None):

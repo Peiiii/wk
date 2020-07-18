@@ -1,0 +1,10 @@
+<script>
+    {% set URL=context.URL %}
+    const Apis={
+      drafts:'{{ URL.Api.Drafts }}'
+    };
+    const Urls = {
+
+    };
+
+</script>

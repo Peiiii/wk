@@ -1,400 +1,684 @@
-import os,shutil,glob,inspect
+import os, shutil, glob, inspect
+from types import MethodType
+
+
 class _T(str):
     def __call__(self, s):
-        if s.upper()==self or s==self:
+        if s.upper() == self or s == self:
             return True
         else:
             return False
-CONST_TYPE=_T
+
+
+CONST_TYPE = _T
+
+
 class TMetaClass(type):
     def __new__(cls, name, bases, attrs):
-        dic=attrs.copy()
-        for k,v in attrs.items():
-            if isinstance(v,_T):
-                dic[k]=_T(k)
+        dic = attrs.copy()
+        for k, v in attrs.items():
+            if isinstance(v, _T):
+                dic[k] = _T(k)
         return type.__new__(cls, name, bases, dic)
 
+
 class T(metaclass=TMetaClass):
-    NOT_FOUND=_T()
-    NOT_EXISTS=_T()
-    NO_VALUE=_T()
-    NOT_IMPLEMENTED=_T()
-    NOT_ALLOWED=_T()
-    EMPTY=_T()
-    NO_SUCH_VALUE=_T()
-    NO_SUCH_ATTR=_T()
-    NOT_GIVEN=_T()
-    FOLDER=_T()
-    FILE=_T()
-    DIR=_T()
-    LINK=_T()
-    MOUNT=_T()
-    IMAGE=_T()
-    TEXT=_T()
-    VIDEO=_T()
-    AUDIO=_T()
-    JSON=_T()
-    TXT=_T()
-    PY=_T()
-    JPG=_T()
-    PNG=_T()
-    JPEG=_T()
-    GIF=_T()
-    PGM=_T()
-    BMP=_T()
-    JS=_T()
-    MP4=_T()
-    AVI=_T()
-    IMAGE_FILE_EXTS=[JPG,JPEG,PNG,GIF,PGM,BMP]
+    NOT_FOUND = _T()
+    NOT_EXISTS = _T()
+    NO_VALUE = _T()
+    NOT_IMPLEMENTED = _T()
+    NOT_ALLOWED = _T()
+    EMPTY = _T()
+    NO_SUCH_VALUE = _T()
+    NO_SUCH_ATTR = _T()
+    NOT_GIVEN = _T()
+    FOLDER = _T()
+    FILE = _T()
+    DIR = _T()
+    LINK = _T()
+    MOUNT = _T()
+    IMAGE = _T()
+    TEXT = _T()
+    VIDEO = _T()
+    AUDIO = _T()
+    JSON = _T()
+    TXT = _T()
+    PY = _T()
+    JPG = _T()
+    PNG = _T()
+    JPEG = _T()
+    GIF = _T()
+    PGM = _T()
+    BMP = _T()
+    JS = _T()
+    MP4 = _T()
+    AVI = _T()
+    IMAGE_FILE_EXTS = [JPG, JPEG, PNG, GIF, PGM, BMP]
 
 
 class EnumTypeMetaClass(type):
     def __new__(cls, name, bases, attrs):
-        dic=attrs.copy()
-        for k,v in attrs.items():
-            if isinstance(v,_T):
-                dic[k]=v
+        dic = attrs.copy()
+        for k, v in attrs.items():
+            if isinstance(v, _T):
+                dic[k] = v
             else:
-                dic[k]=_T(k)
+                dic[k] = _T(k)
         return type.__new__(cls, name, bases, dic)
+
+
 class WT(metaclass=EnumTypeMetaClass):
-    Error=0
+    Error = 0
+
+
 def get_file_ext(path):
-    name=os.path.basename(path)
-    if not '.' in path:return None
-    ext=name.rsplit('.',maxsplit=1)[-1]
-    if ext=='':ext=None
+    name = os.path.basename(path)
+    if not '.' in path: return None
+    ext = name.rsplit('.', maxsplit=1)[-1]
+    if ext == '': ext = None
     return ext
-def read_file(path,type=None,encoding=None):
+
+
+def read_file(path, type=None, encoding=None):
     assert os.path.isfile(path)
-    type=type or get_file_ext(path) or 'TXT'
+    type = type or get_file_ext(path) or 'TXT'
     if type.upper() in T.IMAGE_FILE_EXTS:
         from PIL import Image
         return Image.open(path)
     else:
         if not encoding:
-            encoding='utf-8'
-        with open(path,'r',encoding=encoding) as f:
+            encoding = 'utf-8'
+        with open(path, 'r', encoding=encoding) as f:
             return f.read()
 
+
 class IterObject(dict):
-    __no_value__='<__no_value__>'
+    __no_value__ = '<__no_value__>'
+
     def __getattr__(self, key):
-        v=self.get(key,self.__no_value__)
+        v = self.get(key, self.__no_value__)
         if v is self.__no_value__:
-            self[key]=IterObject()
+            self[key] = IterObject()
             return self[key]
         else:
             return v
+
     def __setattr__(self, key, value):
-        self[key]=value
+        self[key] = value
+
 
 class Path(str):
     __no_value__ = '<__no_value__>'
-    def __init__(self,*args,**kwargs):
+
+    def __init__(self, *args, **kwargs):
         super().__init__()
+
     def __getattr__(self, item):
-        return self/item
+        return self / item
+
     def __setattr__(self, key, value):
-        self.__dict__[key]=value
+        self.__dict__[key] = value
+
     def __truediv__(self, other):
-        return Path(self+'/'+other)
-    def __call__(self,s=T.NO_VALUE):
-        if T.NO_VALUE:return None
-        return self/s
-    def relative_path(self,path):
+        return Path(self + '/' + other)
+
+    def __call__(self, s=T.NO_VALUE):
+        if T.NO_VALUE: return None
+        return self / s
+
+    def relative_path(self, path):
         assert path.startswith(self)
-        if self=='':
+        if self == '':
             pass
         else:
             if path.startswith(self):
-                path=path[len(self):]
-            path=path.lstrip('/')
+                path = path[len(self):]
+            path = path.lstrip('/')
         return self.__class__(path)
 
+
 class StrictPath:
-    def __init__(self,s):
-        self.__value__=Path(self.__strict__(s))
-    def __strict__(self,s):
-        prefix='/' if s.startswith('/') or s.startswith("\\") else ''
-        def remove_all(lis,item):
+    def __init__(self, s):
+        self.__value__ = Path(self.__strict__(s))
+
+    def __strict__(self, s):
+        prefix = '/' if s.startswith('/') or s.startswith("\\") else ''
+
+        def remove_all(lis, item):
             if item in lis:
-                lis2=lis.copy()
+                lis2 = lis.copy()
                 for i in lis:
-                    if i==item:
+                    if i == item:
                         lis2.remove(i)
                 return lis2
 
             else:
                 return lis
-        lis=s.split('/')
-        lis2=[]
+
+        lis = s.split('/')
+        lis2 = []
         for i in lis:
-            lis2+=i.split('\\')
-        lis=lis2
-        lis=remove_all(lis,'/')
-        lis=remove_all(lis,"\\")
-        lis=remove_all(lis,'')
-        return prefix+'/'.join(lis)
+            lis2 += i.split('\\')
+        lis = lis2
+        lis = remove_all(lis, '/')
+        lis = remove_all(lis, "\\")
+        lis = remove_all(lis, '')
+        return prefix + '/'.join(lis)
+
     def __getattr__(self, item):
-        return self/item
+        return self / item
+
     def __truediv__(self, other):
-        return StrictPath(self.__value__/other).__value__
+        return StrictPath(self.__value__ / other).__value__
+
     def __call__(self, s=''):
-        if s=='':return self.__value__
-        return StrictPath(self.__value__/s)
+        if s == '': return self.__value__
+        return StrictPath(self.__value__ / s)
+
     def __repr__(self):
-        return "<StrictPath:'%s'>"%(self.__value__)
+        return "<StrictPath:'%s'>" % (self.__value__)
+
     def __str__(self):
         return self.__value__
+
+
 def join_path(*args):
-    return StrictPath('/'.join(args))()
-def standard_path(p,check=False):
+    path = StrictPath('/'.join(args))()
+    path=standard_path(path)
+    return path
+
+
+def standard_path(p, check=False):
     assert len(p)
     # if (len(p)<=4 and p[1:]=='://') or (len(p)==3 and p[1:]==':/'):return p[:3]
     # print(p)
-    p=str(StrictPath(p))
+    p = str(StrictPath(p))
     # print(p)
     # if not '/' in p:return p
-    p=p.split('/')
+    p = p.split('/')
     assert len(p)
-    res=[]
+    res = []
     p.reverse()
     while True:
         if not len(p):
-            if len(res)>1 and '.' in res:
+            if len(res) > 1 and '.' in res:
                 for char in res:
-                    if char=='.':
+                    if char == '.':
                         res.remove(char)
-            path='/'.join(res)
-            if len(path)==2 and path[1]==':':
-                path=path+'/'
+            path = '/'.join(res)
+            if len(path) == 2 and path[1] == ':':
+                path = path + '/'
             return path
-        i=p.pop()
-        if i=='':
+        i = p.pop()
+        if i == '':
             res.append('')
             continue
-        elif i=='.':
-            if not len(res):res.append('.')
-        elif i=='..':
-            if check:return False
-            if not len(res) or res[-1]=='.':raise Exception('Error,path has reached the top when another ".." shew up.')
+        elif i == '.':
+            if not len(res): res.append('.')
+        elif i == '..':
+            if check: return False
+            if not len(res) or res[-1] == '.':
+                raise Exception('Error,path has reached the top when another ".." shew up.')
             else:
                 res.pop()
-                if not len(res):res.append('.')
-        else:res.append(i)
+                if not len(res): res.append('.')
+        else:
+            res.append(i)
+
+
 def split_path(path):
-    path=standard_path(path)
-    items=path.split('/')
-    if items[0]=='':
-        items[0]='/'
+    path = standard_path(path)
+    items = path.split('/')
+    if items[0] == '':
+        items[0] = '/'
     return items
 
+
 def join_standard_path(*args):
-    path=join_path(*args)
+    path = join_path(*args)
     return standard_path(path)
-def get_relative_path(root,child):
-    path=child
-    path=standard_path(path)
-    root=standard_path(root)
+
+
+def get_relative_path(root, child):
+    path = child
+    path = standard_path(path)
+    root = standard_path(root)
     # print("path:,root:",path,root)
     assert path.startswith(root)
     return path[len(root):]
-class SecureDirPath(str):
 
+
+class PatherPoint:
+    def __init__(self, name, location, title, children=[]):
+        self.__name__ = name
+        self.__location__ = location
+        self.__title__ = title
+        self.__children__ = children
+
+    def __struct__(cls, indent=0, indent_step=5, indent_char=' ',
+                   head_pattern='{title}  {location}  ==> {name}'):
+        class_attrs = head_pattern.format(title=cls.__title__ or '/', location=cls.__location__,
+                                          name=cls.__name__)
+        self_line = '{spaces}{class_attrs}\n'.format(spaces=indent_char * indent, class_attrs=class_attrs)
+        children_lines = ''.join(
+            [child.__struct__(indent + indent_step, indent_step) for child in cls.__children__])
+        return self_line + children_lines
+
+    def __path__(cls, indent=0, indent_step=3, indent_char=' ', head_pattern='{location}'):
+        class_attrs = head_pattern.format(name=cls.__name__, title=cls.__title__,
+                                          location=os.path.basename(cls.__location__) or '/')
+        self_line = '{spaces}{class_attrs}\n'.format(spaces=indent_char * indent, class_attrs=class_attrs)
+        children_lines = ''.join(
+            [child.__path__(indent + indent_step, indent_step) for child in cls.__children__])
+        return self_line + children_lines
+
+    def items(cls):
+        return cls.__children__
+
+    def structure(cls, *args, **kwargs):
+        return cls.__struct__(*args, **kwargs)
+
+    def map(cls, *args, **kwargs):
+        return cls.__path__(*args, **kwargs)
+
+    def path(cls, x=''):
+        return join_path(cls.__location__, x)
+
+    def __repr__(cls):
+        return '''<PatherPoint name="{name}" location="{location}" title="{title}">'''.format(name=cls.__name__,location=cls.__location__,title=cls.__title__)
+
+    def __str__(cls):
+        return cls.__location__
+
+    def __call__(self, x=None):
+        if x:
+            return join_path(self.__location__, x)
+        return self.__location__
+
+
+class PatherMetaClass(type):
+    def __new__(cls, name, bases, attrs):
+        assert isinstance(name, str)
+        assert isinstance(attrs, dict)
+        def bind_methods(class_):
+            def __struct__(cls, indent=0, indent_step=5, indent_char=' ',
+                           head_pattern='{title}  {location}  ==> {name}'):
+                class_attrs = head_pattern.format(title=cls.__title__ or '/', location=cls.__location__,
+                                                  name=cls.__name__)
+                self_line = '{spaces}{class_attrs}\n'.format(spaces=indent_char * indent, class_attrs=class_attrs)
+                children_lines = ''.join(
+                    [child.__struct__(indent + indent_step, indent_step) for child in cls.__children__])
+                return self_line + children_lines
+
+            def __path__(cls, indent=0, indent_step=3, indent_char=' ', head_pattern='{location}'):
+                class_attrs = head_pattern.format(name=cls.__name__, title=cls.__title__,
+                                                  location=os.path.basename(cls.__location__) or '/')
+                self_line = '{spaces}{class_attrs}\n'.format(spaces=indent_char * indent, class_attrs=class_attrs)
+                children_lines = ''.join(
+                    [child.__path__(indent + indent_step, indent_step) for child in cls.__children__])
+                return self_line + children_lines
+
+            def items(cls):
+                return cls.__children__
+
+            def structure(cls, *args, **kwargs):
+                return cls.__struct__(*args, **kwargs)
+
+            def map(cls, *args, **kwargs):
+                return cls.__path__(*args, **kwargs)
+
+            def path(cls, x=''):
+                return join_path(cls.__location__, x)
+
+            def __repr__(cls):
+                return '''<PatherPoint name="{name}" location="{location}" title="{title}">'''.format(name=cls.__name__,
+                                                                                                      location=cls.__location__,
+                                                                                                      title=cls.__title__)
+            def __str__(cls):
+                return cls.map()
+
+            def __call__(self, x=None):
+                if x:
+                    return join_path(self.__location__, x)
+                return self.__location__
+            class_.__struct__=MethodType(__struct__,class_)
+            class_.__path__=MethodType(__path__,class_)
+            class_.items=MethodType(items,class_)
+            class_.structure=MethodType(structure,class_)
+            class_.map=MethodType(map,class_)
+            class_.path=MethodType(path,class_)
+            class_.__repr__=MethodType(__repr__,class_)
+            class_.__str__=MethodType(__str__,class_)
+            return class_
+        def should_dig_into(x):
+            if not isinstance(x, type): return False
+            if issubclass(x, Pather): return False
+            if x.__name__.lower() == 'const': return False
+            return True
+
+        def get_string_keys(attrs: dict):
+            keys = []
+            for k, v in attrs.items():
+                if not k.startswith('_') and isinstance(v, str):
+                    keys.append(k)
+            return keys
+        def get_methods_dict(attrs):
+            new_attrs={}
+            for k,v  in attrs.items():
+                if inspect.isfunction(v):
+                    new_attrs[k]=v
+            return new_attrs
+
+
+        def convert_string_keys(class_,string_keys,attrs):
+            new_attrs = {}
+            for key in string_keys:
+                new_attrs[key] = join_path(class_.__location__, attrs[key])
+            return new_attrs
+
+        __location__ = attrs.get('__location__', '/')
+        __title__ = attrs.get('__title__', name.lower())
+        keys = list(filter(lambda x: should_dig_into(attrs[x]), attrs.keys()))
+        string_keys = get_string_keys(attrs)
+        methods = get_methods_dict(attrs)
+
+        def build_class(parent_location, class_):
+            attrs = class_.__dict__
+            name = class_.__name__
+            string_keys=get_string_keys(attrs)
+            keys = list(filter(lambda x: should_dig_into(attrs[x]), attrs.keys()))
+            methods=get_methods_dict(attrs)
+            __title__ = attrs.get('__title__', name.lower())
+            __location__ = attrs.get('__location__', None)
+            if __location__:
+                if not __location__.startswith('/'):
+                    __location__ = join_path(parent_location, __location__)
+            else:
+                __location__ = join_path(parent_location, __title__)
+
+            new_attrs = {}
+            for key in keys:
+                new_attrs[key] = build_class(__location__, attrs[key])
+            __children__ = list(new_attrs.values())
+            class_ = PatherPoint(name=name, location=__location__, title=__title__, children=__children__)
+            new_attrs.update(convert_string_keys(class_,string_keys,attrs))
+            new_attrs.update(**methods)
+            for k, v in new_attrs.items():
+                if inspect.isfunction(v):
+                    args=list(get_arg_dict(v).keys())
+                    if args and args[0]=='self':
+                        v=MethodType(v,class_)
+                setattr(class_, k, v)
+
+            return class_
+
+        new_attrs = {}
+        for key in keys:
+            new_attrs[key] = build_class(__location__, attrs[key])
+        __children__ = list(new_attrs.values())
+        # class_ = PatherPoint(name=name, location=__location__, title=__title__, children=__children__)
+        class_=  type.__new__(cls,name,bases,attrs)
+        new_attrs.update(
+            __location__=__location__,__title__=__title__,__children__=__children__
+        )
+        new_attrs.update(convert_string_keys(class_, string_keys, attrs))
+        new_attrs.update(**methods)
+        for k, v in new_attrs.items():
+            setattr(class_, k, v)
+        class_=bind_methods(class_)
+        return class_
+
+
+class Pather(metaclass=PatherMetaClass):
+    pass
+
+
+
+class SecureDirPath(str):
     __no_value__ = '<__no_value__>'
-    def __init__(self,s):
+
+    def __init__(self, s):
         super().__init__()
+
     def __getattr__(self, item):
-        return self/item
+        return self / item
+
     def __truediv__(self, other):
-        return SecureDirPath(StrictPath(self+'/'+other))
+        return SecureDirPath(StrictPath(self + '/' + other))
+
     def __call__(self):
         assert os.path.exists(self)
         return self.__read__()
-    def file(self,fn):
-        fp=self/fn
+
+    def file(self, fn):
+        fp = self / fn
         return fp
+
     def __read__(self):
         import os
         if os.path.isfile(self):
-            with open(self,'r',encoding='utf-8') as f:
+            with open(self, 'r', encoding='utf-8') as f:
                 return f.read()
         if os.path.isdir(self):
             return os.listdir(self)
 
+
 class DirPath(str):
     __type_file__ = T.FILE
     __type_dir__ = T.DIR
-    __type_link__ =T.LINK
-    __type_mount__=T.MOUNT
-    __type_not_exists__=T.NOT_EXISTS
+    __type_link__ = T.LINK
+    __type_mount__ = T.MOUNT
+    __type_not_exists__ = T.NOT_EXISTS
     __no_value__ = T.NO_VALUE
+
     # __type_file__ = '<type:file>'
     # __type_dir__ = '<type:dir>'
     # __type_link__ = '<type:link>'
     # __type_mount__='<type:mount>'
     # __type_not_exists__='<type:not_exists>'
     # __no_value__ = '<__no_value__>'
-    def __init__(self,s):
+    def __init__(self, s):
         super().__init__()
+
     def __getattr__(self, item):
-        return self/item
+        return self / item
+
     def __truediv__(self, other):
-        return DirPath(StrictPath(self+'/'+other))
-    def __call__(self, s=__no_value__,*args,**kwargs):
+        return DirPath(StrictPath(self + '/' + other))
+
+    def __call__(self, s=__no_value__, *args, **kwargs):
         assert os.path.exists(self)
         if s is self.__no_value__:
-            return self.__read__(*args,**kwargs)
+            return self.__read__(*args, **kwargs)
         else:
-            return self.__write__(s,*args,**kwargs)
-    def info(self,format=False,with_path=False):
+            return self.__write__(s, *args, **kwargs)
+
+    def info(self, format=False, with_path=False):
         assert self.exists()
-        info=FSItemInfo()
-        info.atime=self.getatime()
-        info.ctime=self.getctime()
-        info.mtime=self.getmtime()
-        info.type=self.type()
-        info.name=self.basename()
-        info.size=os.path.getsize(self)
+        info = FSItemInfo()
+        info.atime = self.getatime()
+        info.ctime = self.getctime()
+        info.mtime = self.getmtime()
+        info.type = self.type()
+        info.name = self.basename()
+        info.size = os.path.getsize(self)
         if with_path:
-            info.path=self.abspath()
+            info.path = self.abspath()
         if format:
             info.pretty_format()
         return info
-    def tranverse_info(self,depth=-1,format=False):
-        info=self.info(format=format)
-        if depth==1:
+
+    def tranverse_info(self, depth=-1, format=False):
+        info = self.info(format=format)
+        if depth == 1:
             return info
         if self.isdir():
-            info.children={}
+            info.children = {}
             for item in self.children():
-                info.children.update({item.basename():item.tranverse_info(depth=depth-1,format=format)})
+                info.children.update({item.basename(): item.tranverse_info(depth=depth - 1, format=format)})
         return info
+
     def standard(self):
         return self.__class__(standard_path(self))
-    def tranverse_files(self,func):
+
+    def tranverse_files(self, func):
         from wk import tranverse_files
-        tranverse_files(self,func)
-    def tranverse_dirs(self,func):
+        tranverse_files(self, func)
+
+    def tranverse_dirs(self, func):
         from wk import tranverse_dirs
-        tranverse_dirs(self,func)
-    def deepglob(self,s,res=[]):
-        res+=self.glob(s)
+        tranverse_dirs(self, func)
+
+    def deepglob(self, s, res=[]):
+        res += self.glob(s)
         for d in self.dirs():
-            res=d.deepglob(s,res)
+            res = d.deepglob(s, res)
         return res
-    def glob(self,s):
-        fs=glob.glob(self.join_path(s))
-        fs=[self.__class__(f) for f in fs]
+
+    def glob(self, s):
+        fs = glob.glob(self.join_path(s))
+        fs = [self.__class__(f) for f in fs]
         return fs
+
     def children(self):
-        children=[self.join_path(item) for item in self.listdir()]
+        children = [self.join_path(item) for item in self.listdir()]
         return children
+
     def files(self):
-        items=[]
+        items = []
         for item in self.children():
             if item.isfile():
                 items.append(item)
         return items
+
     def dirs(self):
-        items=[]
+        items = []
         for item in self.children():
             if item.isdir():
                 items.append(item)
         return items
-    def join_path(self,path):
-        return self/path
+
+    def join_path(self, path):
+        return self / path
+
     def list(self):
         assert self.isdir()
         return os.listdir(self)
+
     def listdir(self):
         return self.list()
+
     def type(self):
-        if self.isfile():return self.__type_file__
-        if self.isdir():return self.__type_dir__
-        if self.islink():return self.__type_link__
-        if self.ismount():return self.__type_mount__
+        if self.isfile(): return self.__type_file__
+        if self.isdir(): return self.__type_dir__
+        if self.islink(): return self.__type_link__
+        if self.ismount(): return self.__type_mount__
         return self.__type_not_exists__
+
     def isfile(self):
         return os.path.isfile(self)
+
     def isdir(self):
         return os.path.isdir(self)
+
     def islink(self):
         return os.path.islink(self)
+
     def ismount(self):
         return os.path.ismount(self)
+
     def isabs(self):
         return os.path.isabs(self)
+
     def abspath(self):
         return self.__class__(os.path.abspath(self))
+
     def lexists(self):
         return os.path.lexists(self)
+
     def exists(self):
         return os.path.exists(self)
+
     def basename(self):
         return os.path.basename(self)
+
     def dirname(self):
-        name=os.path.dirname(self) if os.path.dirname(self)!='' else '.'
+        name = os.path.dirname(self) if os.path.dirname(self) != '' else '.'
         return self.__class__(name)
+
     def getatime(self):
         return os.path.getatime(self)
+
     def getctime(self):
         return os.path.getctime(self)
+
     def getmtime(self):
         return os.path.getmtime(self)
+
     def getsize(self):
         assert self.isfile()
         return os.path.getsize(self)
-    def add(self,s):
+
+    def add(self, s):
         assert self.isfile()
-        with open(self,'a',encoding='utf-8') as f:
+        with open(self, 'a', encoding='utf-8') as f:
             f.write(s)
         return self
-    def file(self,fn,encoding='utf-8'):
-        fp=self/fn
+
+    def file(self, fn, encoding='utf-8'):
+        fp = self / fn
         if not os.path.exists(fp):
-            with open(fp,'w',encoding=encoding) as f:
+            with open(fp, 'w', encoding=encoding) as f:
                 pass
         return fp
+
     def size(self):
         assert self.isfile()
         return os.path.getsize(self)
+
     def todir(self):
         if not os.path.exists(self):
             os.makedirs(self)
-        else:assert self.isdir()
+        else:
+            assert self.isdir()
         return self
+
     def tofile(self):
         if not os.path.exists(self):
             self.dirname().todir().file(self.basename())
         else:
             assert self.isfile()
         return self
-    def __write__(self,s,encoding='utf-8',*args,**kwargs):
+
+    def __write__(self, s, encoding='utf-8', *args, **kwargs):
         assert os.path.isfile(self) or os.path.isdir(self)
         if os.path.isfile(self):
-            with open(self,'w',encoding=encoding) as f:
+            with open(self, 'w', encoding=encoding) as f:
                 f.write(s)
                 return self
         else:
             s2 = self / s
             os.mkdir(s2) if not os.path.exists(s2) else None
             return s2
-    def __read__(self,*args,**kwargs):
+
+    def __read__(self, *args, **kwargs):
         import os
         if os.path.isfile(self):
             return read_file(self)
         if os.path.isdir(self):
             return os.listdir(self)
 
-def get_file_info(path,depth=-1,format=True):
-    return DirPath(path).tranverse_info(depth=depth,format=format)
+
+def get_file_info(path, depth=-1, format=True):
+    return DirPath(path).tranverse_info(depth=depth, format=format)
+
+
 class PowerDirPath(DirPath):
     '''
     This class can be very distructive.
     Be Really Careful !!!
     '''
+
     def rmself(self):
         assert os.path.isdir(self) or os.path.isfile(self)
         if os.path.isdir(self):
@@ -406,44 +690,55 @@ class PowerDirPath(DirPath):
     def __truediv__(self, other):
         return PowerDirPath(DirPath(self).__truediv__(other))
 
+
 class PointDict(dict):
-    __no_value__='<__no_value__>'
-    def __getattr__(self, key ,default=T.NOT_GIVEN):
+    __no_value__ = '<__no_value__>'
+
+    def __getattr__(self, key, default=T.NOT_GIVEN):
         if key in self.keys():
             return self[key]
-        elif default!=T.NOT_GIVEN:
+        elif default != T.NOT_GIVEN:
             return default
-        raise KeyError('No such key named %s'%(key))
+        raise KeyError('No such key named %s' % (key))
+
     def __setattr__(self, key, value):
-        self[key]=value
-    def __call__(self, key , value=__no_value__):
+        self[key] = value
+
+    def __call__(self, key, value=__no_value__):
         if value is self.__no_value__:
-            self[key]=PointDict()
+            self[key] = PointDict()
         else:
-            self[key]=value
+            self[key] = value
         return self[key]
-    def set_attribute(self,key,value):
+
+    def set_attribute(self, key, value):
         self.__dict__[key] = value
-    def get_attribute(self,*args,**kwargs):
-        return self.__dict__.get(*args,**kwargs)
-    def seta(self,**kwargs):
-        for k,v in kwargs.items():
-            self.set_attribute('__%s__'%(k),v)
-    def geta(self,key,*args,**kwargs):
-        return self.get_attribute('__%s__'%(key),*args,**kwargs)
+
+    def get_attribute(self, *args, **kwargs):
+        return self.__dict__.get(*args, **kwargs)
+
+    def seta(self, **kwargs):
+        for k, v in kwargs.items():
+            self.set_attribute('__%s__' % (k), v)
+
+    def geta(self, key, *args, **kwargs):
+        return self.get_attribute('__%s__' % (key), *args, **kwargs)
+
     @classmethod
-    def from_dict(cls,dic):
-        dic2=cls()
-        for k,v in dic.items():
-            if not isinstance(v,dict):
-                dic2[k]=v
+    def from_dict(cls, dic):
+        dic2 = cls()
+        for k, v in dic.items():
+            if not isinstance(v, dict):
+                dic2[k] = v
             else:
-                dic2[k]=cls.from_dict(v)
+                dic2[k] = cls.from_dict(v)
         return dic2
+
     def print(self):
         import json
-        print(json.dumps(self,sort_keys=True,indent=4))
-    def print1(self,depth=0,step=5,space_around_delimiter=1,fillchar=' ',cell_border='|',delimiter=':'):
+        print(json.dumps(self, sort_keys=True, indent=4))
+
+    def print1(self, depth=0, step=5, space_around_delimiter=1, fillchar=' ', cell_border='|', delimiter=':'):
         import re
         def len_zh(data):
             temp = re.findall('[^a-zA-Z0-9.]+', data)
@@ -451,19 +746,38 @@ class PointDict(dict):
             for i in temp:
                 count += len(i)
             return (count)
-        for k,v in self.items():
+
+        for k, v in self.items():
             for i in range(depth):
-                print(fillchar*step,end='')
-                print(cell_border,end='')
-            print(k.rjust(step-len_zh(k),fillchar),end=' '*space_around_delimiter+delimiter+' '*space_around_delimiter)
-            if not isinstance(v,PointDict):
+                print(fillchar * step, end='')
+                print(cell_border, end='')
+            print(k.rjust(step - len_zh(k), fillchar),
+                  end=' ' * space_around_delimiter + delimiter + ' ' * space_around_delimiter)
+            if not isinstance(v, PointDict):
                 print(v)
             else:
-                print('\n',end='')
-                v.print1(depth=depth+1,step=step,space_around_delimiter=space_around_delimiter,
-                          cell_border=cell_border,fillchar=fillchar,delimiter=delimiter)
+                print('\n', end='')
+                v.print1(depth=depth + 1, step=step, space_around_delimiter=space_around_delimiter,
+                         cell_border=cell_border, fillchar=fillchar, delimiter=delimiter)
+
     def pprint1(self):
         self.print1(step=5, space_around_delimiter=0, fillchar='`', cell_border='|', delimiter=':')
+
+
+def get_arg_dict(func):
+    sign = inspect.signature(func)
+    keys = list(sign.parameters.keys())
+    dic = dict()
+    for key in keys:
+        value = sign.parameters.get(key).default
+        dic[key] = value
+    return dic
+
+
+def is_bound(m):
+    return hasattr(m, '__self__')
+
+
 class ArgumentSpace(PointDict):
     class Empty:
         pass
@@ -472,10 +786,25 @@ class ArgumentSpace(PointDict):
         super().__init__(**kwargs)
         self.seta(__parent__={})
 
+    def run(self, func):
+        arg_dict = get_arg_dict(func)
+        params = {}
+        for k, v_default in arg_dict:
+            v = self.get(k, None)
+            if v is not None:
+                params[k] = v
+            else:
+                if v_default is inspect._empty:
+                    params[k] = None
+                else:
+                    params[k] = v_default
+        return func(**params)
+
     @classmethod
     def make(cls, *args, **kwargs):
+        '''the latter args have higher priority,  '''
         for arg in args:
-            assert isinstance(arg, dict)
+            assert isinstance(arg, (ArgumentSpace, dict))
         args = list(args)
         args.append(kwargs)
 
@@ -553,171 +882,202 @@ class ArgumentSpace(PointDict):
             params.append(handle_if_empty(self.get_argument(arg, Empty), arg))
         return params
 
+
 class FSItemInfo(PointDict):
     def pretty_format(self):
-        self.atime=to_datetime_str(self.atime)
-        self.ctime=to_datetime_str(self.ctime)
-        self.mtime=to_datetime_str(self.mtime)
-        self.size=pretty_format_size(self.size)
+        self.atime = to_datetime_str(self.atime)
+        self.ctime = to_datetime_str(self.ctime)
+        self.mtime = to_datetime_str(self.mtime)
+        self.size = pretty_format_size(self.size)
         return self
 
 
-
-
 def dir_tree(dir):
-    dic=PointDict()
-    items=os.listdir(dir)
+    dic = PointDict()
+    items = os.listdir(dir)
     for item in items:
-        path=dir+'/'+item
+        path = dir + '/' + item
         if os.path.isdir(path):
-            dic[item]=dir_tree(path)
+            dic[item] = dir_tree(path)
         else:
-            dic[item]=item
+            dic[item] = item
     return dic
 
 
 def pretty_format_size(size):
-    def gen_str(size,type):
-        if size%1==0:return '%d %s'%(size,type)
-        return '%.2f %s'%(size,type)
+    def gen_str(size, type):
+        if size % 1 == 0: return '%d %s' % (size, type)
+        return '%.2f %s' % (size, type)
+
     def inrange(s):
-        if size>=0 and size <1000:
+        if size >= 0 and size < 1000:
             return True
-    if inrange(size):return gen_str(size,'Bytes')
-    size/=1024
-    if inrange(size):return gen_str(size,'KB')
-    size/=1024
-    if inrange(size):return gen_str(size,'MB')
-    size/=1024
-    if inrange(size):return gen_str(size,'GB')
-    size/=1024
-    if inrange(size):return gen_str(size,'TB')
-    size/=1024
-    return gen_str(size,'PB')
+
+    if inrange(size): return gen_str(size, 'Bytes')
+    size /= 1024
+    if inrange(size): return gen_str(size, 'KB')
+    size /= 1024
+    if inrange(size): return gen_str(size, 'MB')
+    size /= 1024
+    if inrange(size): return gen_str(size, 'GB')
+    size /= 1024
+    if inrange(size): return gen_str(size, 'TB')
+    size /= 1024
+    return gen_str(size, 'PB')
+
+
 def to_datetime_str(t):
     import time
-    t=time.gmtime(t)
-    return time.strftime('%Y-%m-%d %H:%M:%S',t)
+    t = time.gmtime(t)
+    return time.strftime('%Y-%m-%d %H:%M:%S', t)
+
+
 def to_date_str(t):
     import time
-    t=time.gmtime(t)
-    return time.strftime('%Y-%m-%d',t)
+    t = time.gmtime(t)
+    return time.strftime('%Y-%m-%d', t)
+
 
 class FileDirDict(PointDict):
-    __type_file__='<type:file>'
-    __type_dir__='<type:dir>'
-    __type_link__='<type:link>'
-    def set_info(self,info):
+    __type_file__ = '<type:file>'
+    __type_dir__ = '<type:dir>'
+    __type_link__ = '<type:link>'
+
+    def set_info(self, info):
         return self.seta(info=info)
+
     def get_info(self):
         return self.geta('info')
-    def info(self,*args,**kwargs):
-        if len(args)!=0:
+
+    def info(self, *args, **kwargs):
+        if len(args) != 0:
             return self.get_info()[args[0]]
-        if len(kwargs)!=0:
-            info=self.get_info()
+        if len(kwargs) != 0:
+            info = self.get_info()
             info.update(**kwargs)
             return self.set_info(info)
         return self.get_info()
+
     def generate_info(self):
-        path=self.path()
-        info=path.info()
+        path = self.path()
+        info = path.info()
         info.update(path=path)
         info.update(abspath=path.abspath())
         self.set_info(info)
-    def set_type(self,type):
-        return self.set_attribute('__type__',type)
-    def get_type(self,*args,**kwargs):
-        return self.get_attribute('__type__',*args,**kwargs)
-    def set_size(self,size):
-        return self.set_attribute('__size__',size)
-    def get_size(self,*args,**kwargs):
-        return self.get_attribute('__size__',*args,**kwargs)
+
+    def set_type(self, type):
+        return self.set_attribute('__type__', type)
+
+    def get_type(self, *args, **kwargs):
+        return self.get_attribute('__type__', *args, **kwargs)
+
+    def set_size(self, size):
+        return self.set_attribute('__size__', size)
+
+    def get_size(self, *args, **kwargs):
+        return self.get_attribute('__size__', *args, **kwargs)
+
     def get_path(self):
         return self.geta('path')
-    def set_path(self,path):
+
+    def set_path(self, path):
         return self.seta(path=path)
+
     def path(self):
         return self.get_path()
+
     def print_size(self):
         print(self.auto_size_str())
+
     def auto_size_str(self):
         size = self.get_size()
         return self.pretty_format_size(size)
-    def pretty_format_size(self,size):
-        def gen_str(size,type):
-            if size%1==0:return '%d %s'%(size,type)
-            return '%.2f %s'%(size,type)
+
+    def pretty_format_size(self, size):
+        def gen_str(size, type):
+            if size % 1 == 0: return '%d %s' % (size, type)
+            return '%.2f %s' % (size, type)
+
         def inrange(s):
-            if size>=0 and size <1000:
+            if size >= 0 and size < 1000:
                 return True
-        if inrange(size):return gen_str(size,'Bytes')
-        size/=1024
-        if inrange(size):return gen_str(size,'KB')
-        size/=1024
-        if inrange(size):return gen_str(size,'MB')
-        size/=1024
-        if inrange(size):return gen_str(size,'GB')
-        size/=1024
-        if inrange(size):return gen_str(size,'TB')
-        size/=1024
-        return gen_str(size,'PB')
-    def size_str(self,type='Bytes'):
-        size=self.size_format(type=type)
-        if type=='Bytes':
-            return '%d %s'%(size,type)
-        return '%.2f %s'%(size,type)
+
+        if inrange(size): return gen_str(size, 'Bytes')
+        size /= 1024
+        if inrange(size): return gen_str(size, 'KB')
+        size /= 1024
+        if inrange(size): return gen_str(size, 'MB')
+        size /= 1024
+        if inrange(size): return gen_str(size, 'GB')
+        size /= 1024
+        if inrange(size): return gen_str(size, 'TB')
+        size /= 1024
+        return gen_str(size, 'PB')
+
+    def size_str(self, type='Bytes'):
+        size = self.size_format(type=type)
+        if type == 'Bytes':
+            return '%d %s' % (size, type)
+        return '%.2f %s' % (size, type)
+
     def info_format(self):
         return self.format_info(self.info())
-    def format_info(self,info):
-        info2=PointDict()
-        for fd in ['atime','ctime','mtime']:
-            v=info.get(fd,self.__no_value__)
+
+    def format_info(self, info):
+        info2 = PointDict()
+        for fd in ['atime', 'ctime', 'mtime']:
+            v = info.get(fd, self.__no_value__)
             if v:
-                info2[fd]=self.format_time(v)
-        fd='size'
-        v=info.get(fd,self.__no_value__)
+                info2[fd] = self.format_time(v)
+        fd = 'size'
+        v = info.get(fd, self.__no_value__)
         if v:
             info2[fd] = self.pretty_format_size(v)
-        info3=PointDict(info)
+        info3 = PointDict(info)
         info3.update(info2)
         return info3
 
-
-    def size_format(self,type='Bytes'):
-        size=self.get_size()
+    def size_format(self, type='Bytes'):
+        size = self.get_size()
         # size=self.size()
-        return self.format_size(size=size,type=type)
-    def format_time(self,t):
+        return self.format_size(size=size, type=type)
+
+    def format_time(self, t):
         import time
-        t=time.gmtime(t)
-        return time.strftime('%Y-%m-%d %H:%M:%S',t)
-    def format_size(self,size,type='Bytes'):
-        if type=='Bytes':return size
-        size/=1024
-        if type=='KB':return size
-        size/=1024
-        if type=='MB':return size
-        size/=1024
-        if type=='GB':return size
-        size/=1024
-        if type=='TB':return size
+        t = time.gmtime(t)
+        return time.strftime('%Y-%m-%d %H:%M:%S', t)
+
+    def format_size(self, size, type='Bytes'):
+        if type == 'Bytes': return size
+        size /= 1024
+        if type == 'KB': return size
+        size /= 1024
+        if type == 'MB': return size
+        size /= 1024
+        if type == 'GB': return size
+        size /= 1024
+        if type == 'TB':
+            return size
         else:
-            raise Exception('Type %s not supported.'%(type))
-    def set_face(self,string):
-        self.set_attribute('__face__',string)
+            raise Exception('Type %s not supported.' % (type))
+
+    def set_face(self, string):
+        self.set_attribute('__face__', string)
+
     def default_face(self):
-        items=[]
-        for k,v in self.items():
-            items.append('%s:%s'%(k,v))
-        return '<%s>'%(','.join(items))
+        items = []
+        for k, v in self.items():
+            items.append('%s:%s' % (k, v))
+        return '<%s>' % (','.join(items))
+
     def __repr__(self):
-        s=self.get_attribute('__face__',None)
+        s = self.get_attribute('__face__', None)
         if s:
             return s
         else:
             return self.default_face()
-    def print2(self,depth=0,step=5,space_around_delimiter=0,fillchar=' ',cell_border='|',delimiter=':'):
+
+    def print2(self, depth=0, step=5, space_around_delimiter=0, fillchar=' ', cell_border='|', delimiter=':'):
         import re
         def len_zh(data):
             temp = re.findall('[^a-zA-Z0-9.]+', data)
@@ -725,98 +1085,114 @@ class FileDirDict(PointDict):
             for i in temp:
                 count += len(i)
             return (count)
-        for k,v in self.items():
+
+        for k, v in self.items():
             for i in range(depth):
-                print(fillchar*step,end='')
-                print(cell_border,end='')
-            print(k.rjust(step-len_zh(k),fillchar),end=' '*space_around_delimiter+delimiter+' '*space_around_delimiter)
-            if not isinstance(v,PointDict):
+                print(fillchar * step, end='')
+                print(cell_border, end='')
+            print(k.rjust(step - len_zh(k), fillchar),
+                  end=' ' * space_around_delimiter + delimiter + ' ' * space_around_delimiter)
+            if not isinstance(v, PointDict):
                 print(v)
             if v.path().isfile():
-                print('\n',end='')
-                v.info_format().print1(depth=depth+1,step=step,space_around_delimiter=space_around_delimiter,
-                          cell_border=cell_border,fillchar=fillchar,delimiter=delimiter)
+                print('\n', end='')
+                v.info_format().print1(depth=depth + 1, step=step, space_around_delimiter=space_around_delimiter,
+                                       cell_border=cell_border, fillchar=fillchar, delimiter=delimiter)
             else:
-                print('\n',end='')
-                v.print2(depth=depth+1,step=step,space_around_delimiter=space_around_delimiter,
-                          cell_border=cell_border,fillchar=fillchar,delimiter=delimiter)
+                print('\n', end='')
+                v.print2(depth=depth + 1, step=step, space_around_delimiter=space_around_delimiter,
+                         cell_border=cell_border, fillchar=fillchar, delimiter=delimiter)
+
     def pprint2(self):
         return self.print2(step=5, space_around_delimiter=0, fillchar='`', cell_border='|', delimiter=':')
 
+
 class DirTree(FileDirDict):
-    def __init__(self,path):
-        path=DirPath(path)
+    def __init__(self, path):
+        path = DirPath(path)
         self.set_path(path)
         self.generate_info()
-        size=0
-        n=0
-        N=0
+        size = 0
+        n = 0
+        N = 0
         for item in path():
-            n+=1
-            p2=path/item
+            n += 1
+            p2 = path / item
             if p2.isdir():
-                self[item]=DirTree(p2)
-                N+=self[item].info('N')
+                self[item] = DirTree(p2)
+                N += self[item].info('N')
             elif p2.isfile():
-                N+=1
-                file=FileDirDict(name=item)
+                N += 1
+                file = FileDirDict(name=item)
                 file.set_path(p2)
                 file.generate_info()
                 fsize = p2.getsize()
                 file.info(size=fsize)
                 file.set_size(size=fsize)
                 file.update(size=file.auto_size_str())
-                self[item]=file
-            size+=self[item].info('size')
-        self.info(size=size,n=n,N=N)
+                self[item] = file
+            size += self[item].info('size')
+        self.info(size=size, n=n, N=N)
+
     def size(self):
-        size=0
-        for k,v in self.items():
-            path=self.geta('path')/k
+        size = 0
+        for k, v in self.items():
+            path = self.geta('path') / k
             if path.isfile():
-                size+=path.size()
+                size += path.size()
             elif path.isdir():
-                size+=v.size()
+                size += v.size()
         return size
+
     def pppprint(self):
         return self.pprint2()
 
 
 class Status(PointDict):
-    def __init__(self,success=True,message="success",code=0,data=None,*args,**kwargs):
-        super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)
+    def __init__(self, success=True, message="success", code=0, data=None, *args, **kwargs):
+        super().__init__(success=success, message=message, code=code, data=data, *args, **kwargs)
+
+
 class StatusSuccess(Status):
-    def __init__(self,success=True,message="success",code=0,data=None,*args,**kwargs):
-        super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)
+    def __init__(self, success=True, message="success", code=0, data=None, *args, **kwargs):
+        super().__init__(success=success, message=message, code=code, data=data, *args, **kwargs)
+
+
 class StatusError(Status):
-    def __init__(self,success=False,message="failure",code=-1,data=None,*args,**kwargs):
-        super().__init__(success=success,message=message,code=code,data=data,*args,**kwargs)
+    def __init__(self, success=False, message="failure", code=-1, data=None, *args, **kwargs):
+        super().__init__(success=success, message=message, code=code, data=data, *args, **kwargs)
+
 
 class RuleChecker:
-    def __init__(self,rules=[]):
+    def __init__(self, rules=[]):
         self.rules = []
         for rule in rules:
             self.define(*rule)
-    def define(self,rule, res , do_in=None,do_out=None,match_func=None):
-        self.rules.append([rule,res,do_in,do_out,match_func])
-    def _match_rule(self,rule,x):
-        if isinstance(rule,type):
-            return isinstance(x,rule)
-        elif hasattr(rule,'__call__'):
+
+    def define(self, rule, res, do_in=None, do_out=None, match_func=None):
+        self.rules.append([rule, res, do_in, do_out, match_func])
+
+    def _match_rule(self, rule, x):
+        if isinstance(rule, type):
+            return isinstance(x, rule)
+        elif hasattr(rule, '__call__'):
             return rule(x)
         else:
             return rule is x
-    def __call__(self, x , default=None):
-        for rule, res ,do_in,do_out,match_func in self.rules:
-            match_func=match_func or self._match_rule
-            if match_func(rule,do_in(x) if do_in else x):
+
+    def __call__(self, x, default=None):
+        for rule, res, do_in, do_out, match_func in self.rules:
+            match_func = match_func or self._match_rule
+            if match_func(rule, do_in(x) if do_in else x):
                 return do_out(res) if do_out else res
         return default
 
+
 class DefaultDict(dict):
-    default={
+    default = {
 
     }
+
     def __init__(self, **kwargs):
         def run_func_with_context(func, arg=None):
             # print(func)
@@ -835,16 +1211,16 @@ class DefaultDict(dict):
         for k, v in self.default.items():
             if k not in info.keys() or info[k] is None:
                 info[k] = self.default[k] if not hasattr(self.default[k],
-                                                              '__call__') else run_func_with_context(self.default[
-                                                                                                         k], info)
+                                                         '__call__') else run_func_with_context(self.default[
+                                                                                                    k], info)
         super().__init__(**info)
 
-if __name__ == '__main__':
-    ruler=RuleChecker([
-        ['b',1],
-        [lambda x:x>2 if isinstance(x,int) else False,2,]
-    ])
-    x='b'
-    x=ruler(x)
-    print(x)
 
+if __name__ == '__main__':
+    ruler = RuleChecker([
+        ['b', 1],
+        [lambda x: x > 2 if isinstance(x, int) else False, 2, ]
+    ])
+    x = 'b'
+    x = ruler(x)
+    print(x)
