@@ -61,8 +61,8 @@ wk/data/static/css/hljs/default.css
 wk/data/static/imgs/bg.jpg
 wk/data/static/imgs/icon/qq.png
 wk/data/static/imgs/icon/svg/clock-orange.svg
-wk/data/static/imgs/icon/svg/知识库.svg
-wk/data/static/imgs/icon/svg/知识预览.svg
+wk/data/static/imgs/icon/svg/zsk.svg
+wk/data/static/imgs/icon/svg/zsyl.svg
 wk/data/static/js/bootstrap.min.js
 wk/data/static/js/highlight.js
 wk/data/static/js/jquery-3.4.1.js
